@@ -215,7 +215,7 @@ FpoConfig(
 |-------------|-----|-----|--------|-----|-------------|
 | HumanoidGetup | **4201.94** | 4105.79 | 4116.02 | NaN | +2.3% vs VP |
 | Go1 Getup | **18.29** | 8.67 | 10.03 | NaN | +111% vs VP |
-| Go1 Joystick | **4.89** | 4.00 | 3.51 | NaN | +22% vs VP |
+| Go1 Joystick | **4.39** | 4.00 | 3.51 | NaN | +10% vs VP |
 
 **關鍵發現**：
 - OT 在**所有環境**中取得最佳性能
@@ -664,7 +664,7 @@ Software:
 | Go1 Getup | OT | 0 | 18.29 | - |
 | Go1 Getup | VP | 0 | 8.67 | - |
 | Go1 Getup | Cosine | 0 | 10.03 | - |
-| Go1 Joystick | OT | 0 | 4.89 | - |
+| Go1 Joystick | OT | 0 | 4.39 | - |
 | Go1 Joystick | VP | 0 | 4.00 | - |
 | Go1 Joystick | Cosine | 0 | 3.51 | - |
 

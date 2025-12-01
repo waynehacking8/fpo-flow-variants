@@ -206,57 +206,57 @@ plt.close()
 print("Saved: plots_multienv/ot_advantage_comparison.png")
 
 
-# ========== Plot 5: Summary Bar Chart with PPO ==========
-fig, ax = plt.subplots(figsize=(14, 7))
+# ========== Plot 5: Summary Bar Chart with PPO (2x2 subplots for proper scaling) ==========
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes = axes.flatten()
 
-# FPO vs PPO data
+# FPO vs PPO data - updated with latest results
 fpo_ppo_data = {
-    "HumanoidGetup": {"FPO-OT": 3629, "PPO": 2910},
+    "HumanoidGetup": {"FPO-OT": 4201.94, "PPO": 2910},
     "Go1 Getup": {"FPO-OT": 18.29, "PPO": 12.50},
     "Go1 Joystick": {"FPO-OT": 4.39, "PPO": 16.94},
     "Go1 Handstand": {"FPO-OT": 3.34, "PPO": 1.78},
 }
 
 envs = list(fpo_ppo_data.keys())
-fpo_rewards = [fpo_ppo_data[e]["FPO-OT"] for e in envs]
-ppo_rewards = [fpo_ppo_data[e]["PPO"] for e in envs]
 
-x = np.arange(len(envs))
-width = 0.35
+for idx, env in enumerate(envs):
+    ax = axes[idx]
+    data = fpo_ppo_data[env]
 
-bars1 = ax.bar(x - width/2, fpo_rewards, width, label='FPO (OT)', color='#2ecc71', edgecolor='black')
-bars2 = ax.bar(x + width/2, ppo_rewards, width, label='PPO', color='#e74c3c', edgecolor='black')
+    x = np.arange(2)
+    width = 0.6
+    rewards = [data["FPO-OT"], data["PPO"]]
+    colors_bar = ['#2ecc71', '#e74c3c']
+    labels = ['FPO-OT', 'PPO']
 
-# Calculate and show improvements
-for i, (f, p) in enumerate(zip(fpo_rewards, ppo_rewards)):
-    imp = (f - p) / p * 100
+    bars = ax.bar(x, rewards, width, color=colors_bar, edgecolor='black')
+
+    # Calculate improvement
+    imp = (data["FPO-OT"] - data["PPO"]) / data["PPO"] * 100
     color = 'green' if imp > 0 else 'red'
     text = f'+{imp:.0f}%' if imp > 0 else f'{imp:.0f}%'
-    y_pos = max(f, p) * 1.05
-    ax.text(x[i], y_pos, text, ha='center', va='bottom', fontsize=11,
-            color=color, fontweight='bold')
 
-ax.set_ylabel('Final Reward', fontsize=12)
-ax.set_xlabel('Environment', fontsize=12)
-ax.set_title('FPO (OT) vs PPO: Performance Comparison Across All Environments',
-             fontsize=14, fontweight='bold')
-ax.set_xticks(x)
-ax.set_xticklabels(envs, fontsize=11)
-ax.legend(loc='upper right', fontsize=11)
-ax.grid(axis='y', alpha=0.3)
+    # Add value labels on bars
+    for bar, r in zip(bars, rewards):
+        height = bar.get_height()
+        ax.annotate(f'{r:.2f}',
+                   xy=(bar.get_x() + bar.get_width() / 2, height),
+                   xytext=(0, 3),
+                   textcoords="offset points",
+                   ha='center', va='bottom', fontsize=10)
 
-# Add task type regions
-ax.axvline(2.5, color='gray', linestyle='--', alpha=0.5)
-ax.text(0.75, ax.get_ylim()[1] * 0.85, 'Goal-Oriented Tasks\n(FPO advantage)',
-        ha='center', fontsize=10, style='italic',
-        bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.3))
-ax.text(2, ax.get_ylim()[1] * 0.65, 'Continuous\nControl',
-        ha='center', fontsize=10, style='italic',
-        bbox=dict(boxstyle='round', facecolor='lightcoral', alpha=0.3))
-ax.text(3, ax.get_ylim()[1] * 0.85, 'Multimodal\n(FPO best)',
-        ha='center', fontsize=10, style='italic',
-        bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.3))
+    # Add improvement text at top
+    ax.text(0.5, 0.95, f'FPO improvement: {text}', transform=ax.transAxes,
+            ha='center', va='top', fontsize=11, color=color, fontweight='bold')
 
+    ax.set_ylabel('Final Reward', fontsize=11)
+    ax.set_title(env, fontsize=12, fontweight='bold')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=11)
+    ax.grid(axis='y', alpha=0.3)
+
+plt.suptitle('FPO (OT) vs PPO: Performance Comparison', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('plots_multienv/fpo_vs_ppo_summary.png', dpi=150, bbox_inches='tight')
 plt.close()

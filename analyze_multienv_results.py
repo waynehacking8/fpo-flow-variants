@@ -264,3 +264,88 @@ for env_name, results in envs:
                 best_ft = ft
     if best_ft:
         print(f"  {env_name}: Best = {best_ft.upper()} ({best_reward:.4f})")
+
+# Figure 5: Separate FPO vs PPO plots for each environment (individual scale)
+# Load PPO results if available
+ppo_results = {}
+ppo_files = {
+    "humanoid_getup": "./results_multienv/humanoid_getup_ppo_results.json",
+    "go1_getup": "./results_multienv/go1_getup_ppo_results.json",
+    "go1_joystick": "./results_multienv/go1_joystick_ppo_results.json",
+    "go1_handstand": "./results_multienv/go1_handstand_ppo_results.json",
+}
+
+for env_key, ppo_file in ppo_files.items():
+    if os.path.exists(ppo_file):
+        with open(ppo_file) as f:
+            ppo_results[env_key] = json.load(f)
+
+print("\n" + "="*60)
+print("GENERATING SEPARATE FPO vs PPO PLOTS")
+print("="*60)
+
+env_info = [
+    ("humanoid_getup", "HumanoidGetup", humanoid_results),
+    ("go1_getup", "Go1 Getup", go1_getup_results),
+    ("go1_joystick", "Go1 Joystick", go1_joystick_results),
+    ("go1_handstand", "Go1 Handstand", go1_handstand_results)
+]
+
+for env_key, env_display, fpo_results in env_info:
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    rewards = []
+    stds = []
+    labels = []
+    bar_colors = []
+
+    # Add FPO flow variants
+    for ft in ["ot", "vp", "cosine"]:
+        if ft in fpo_results:
+            r = get_final_reward(fpo_results[ft])
+            s = get_final_std(fpo_results[ft])
+            if r is not None and not np.isnan(r):
+                rewards.append(r)
+                stds.append(s if s else 0)
+                labels.append(f"FPO-{ft.upper()}")
+                bar_colors.append(colors[ft])
+
+    # Add PPO baseline
+    if env_key in ppo_results:
+        ppo_data = ppo_results[env_key]
+        ppo_reward = get_final_reward(ppo_data)
+        ppo_std = get_final_std(ppo_data)
+        if ppo_reward is not None and not np.isnan(ppo_reward):
+            rewards.append(ppo_reward)
+            stds.append(ppo_std if ppo_std else 0)
+            labels.append("PPO")
+            bar_colors.append("#2ca02c")  # green for PPO
+
+    if rewards:
+        x = np.arange(len(rewards))
+        bars = ax.bar(x, rewards, yerr=stds, capsize=5, color=bar_colors, alpha=0.8)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, fontsize=11)
+        ax.set_ylabel("Final Episode Return", fontsize=12)
+        ax.set_title(f"FPO vs PPO Performance: {env_display}", fontsize=14)
+        ax.grid(True, alpha=0.3, axis='y')
+
+        # Add value labels on bars
+        for bar, r in zip(bars, rewards):
+            height = bar.get_height()
+            ax.annotate(f'{r:.2f}',
+                       xy=(bar.get_x() + bar.get_width() / 2, height),
+                       xytext=(0, 3),
+                       textcoords="offset points",
+                       ha='center', va='bottom', fontsize=10)
+
+        plt.tight_layout()
+        save_path = f"./plots_multienv/fpo_vs_ppo_{env_key}.png"
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        print(f"Saved: {save_path}")
+    else:
+        print(f"No data for {env_display}, skipping...")
+        plt.close()
+
+print("\nAll separate FPO vs PPO plots generated!")

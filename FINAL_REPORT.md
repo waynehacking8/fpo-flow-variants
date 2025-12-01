@@ -223,7 +223,7 @@ FpoConfig(
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**圖 0**：FPO 算法流程與 Flow Schedule 變體比較示意圖
+**示意圖**：FPO 算法流程與 Flow Schedule 變體比較
 
 ---
 
@@ -239,9 +239,11 @@ FpoConfig(
 
 **表 1：最終性能數值（Episode Return）**
 
+*註：HumanoidGetup 為 Multi-seed (n=3) 平均值，其餘環境為單一 seed 結果*
+
 | Environment | OT | VP | Cosine | VE | OT 相對優勢 |
 |-------------|-----|-----|--------|-----|-------------|
-| HumanoidGetup | **4201.94** | 4105.79 | 4116.02 | NaN | +2.3% vs VP |
+| HumanoidGetup | **4262.20** | 4110.84 | 4138.55 | NaN | +3.7% vs VP |
 | Go1 Getup | **18.29** | 8.67 | 10.03 | NaN | +111% vs VP |
 | Go1 Joystick | **4.39** | 4.00 | 3.51 | NaN | +10% vs VP |
 | Go1 Handstand | **3.34** | 1.18 | 1.37 | NaN | +183% vs VP |
@@ -295,10 +297,11 @@ FpoConfig(
 | Cosine vs VP | +27.72 | 2.68 | **0.055** | 2.19 | Large effect* |
 
 **統計解釋**：
-- p-value > 0.05 主要因為**樣本數過小**（n=3）
-- **Cohen's d > 0.8 為 large effect size**，所有比較都達到
-- 實際效果明顯，只是統計功效不足
-- Cosine vs VP 接近統計顯著（p=0.055）
+- **重要聲明**：所有 p-value > 0.05，結果**未達傳統統計顯著水準**
+- 樣本數過小（n=3）導致統計功效不足
+- Cohen's d > 0.8 顯示 large effect size，但這**不能替代統計顯著性**
+- 結論應視為**初步觀察**，需更多實驗（建議 n≥5）來確認
+- Cosine vs VP 接近統計顯著（p=0.055），但仍未達 0.05 門檻
 
 #### 3.2.3 變異數分析
 
@@ -315,14 +318,16 @@ FpoConfig(
 
 #### 3.3.1 實驗設置
 
-| 配置項 | FPO (OT) | PPO |
-|--------|----------|-----|
-| Learning Rate | 3e-4 | 1e-4 |
-| Batch Size | 1024 | 1024 |
-| Clipping Epsilon | 0.05 | 0.3 |
-| Discount Factor | 0.995 | 0.95 |
-| Updates per Batch | 16 | 8 |
-| Entropy Cost | - | 1e-2 |
+**重要聲明**：FPO 與 PPO 使用**不同的超參數配置**。這是因為兩種算法採用各自原論文的推薦設定，而非刻意調整以偏袒任一方。因此，性能差異可能部分來自超參數差異，而非純粹的算法優劣。更嚴謹的比較需進行超參數敏感性分析。
+
+| 配置項 | FPO (OT) | PPO | 差異說明 |
+|--------|----------|-----|----------|
+| Learning Rate | 3e-4 | 1e-4 | FPO 3× 更大 |
+| Batch Size | 1024 | 1024 | 相同 |
+| Clipping Epsilon | 0.05 | 0.3 | PPO 6× 更大 |
+| Discount Factor | 0.995 | 0.95 | FPO 更重視長期獎勵 |
+| Updates per Batch | 16 | 8 | FPO 2× 更多更新 |
+| Entropy Cost | - | 1e-2 | PPO 有熵正則化 |
 
 #### 3.3.2 三環境完整比較
 
@@ -380,7 +385,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 ![Go1 Handstand Multimodal Explanation](plots_analysis/go1_handstand_multimodal_explanation.png)
 
-**圖 N**：多模態任務中 FPO vs PPO 的策略分布比較。左：任務示意圖；右：策略分布對比。
+**圖 8**：多模態任務中 FPO vs PPO 的策略分布比較。左：任務示意圖；右：策略分布對比。
 
 **PPO 的問題（Unimodal Gaussian）**：
 - PPO 使用高斯分布表示策略：$\pi(a|s) = \mathcal{N}(\mu(s), \sigma^2)$
@@ -394,7 +399,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 #### 3.4.3 實驗結果
 
-**表 N：Go1 Handstand 不同算法性能**
+**表 5：Go1 Handstand 不同算法性能**
 
 | 算法 | Final Reward | 相對 PPO |
 |------|--------------|----------|
@@ -405,7 +410,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 ![Go1 Handstand Comparison](plots_analysis/go1_handstand_comparison.png)
 
-**圖 N+1**：Go1 Handstand 各算法性能比較
+**圖 9**：Go1 Handstand 各算法性能比較
 
 **關鍵觀察**：
 1. **FPO-OT 顯著領先**：比 PPO 高出 87.6%，驗證了 FPO 在多模態任務上的優勢
@@ -416,7 +421,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 ![FPO vs PPO All Environments](plots_analysis/fpo_vs_ppo_all_envs.png)
 
-**圖 N+2**：FPO vs PPO 在四個環境中的完整比較
+**圖 10**：FPO vs PPO 在四個環境中的完整比較
 
 #### 3.4.5 結論
 
@@ -643,6 +648,7 @@ OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
 3. **VE 參數**：僅測試 σ_max=80，未嘗試較小值
 4. **計算成本**：未比較不同 schedules 的訓練/推理時間
 5. **Go1 環境**：僅進行單一 seed 實驗，統計可靠性待驗證
+6. **Loss Function 差異**：OT 使用 eps prediction（原始 FPO），VP/Cosine 使用 velocity matching。這是各自最佳實踐，但可能影響公平比較。更嚴謹的研究應使用統一的 loss function 進行消融實驗
 
 ### 6.2 建議的 Ablation Studies
 
@@ -718,7 +724,7 @@ OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
 
 4. Nichol, A. Q., & Dhariwal, P. (2021). Improved denoising diffusion probabilistic models. *ICML 2021*.
 
-5. Wang, Z., Hunt, J. J., & Zhou, M. (2024). Flow policy optimization for continuous control.
+5. Wang, Z., Hunt, J. J., & Zhou, M. (2024). Flow policy optimization for continuous control. *arXiv preprint arXiv:2405.16618*.
 
 6. Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
 
@@ -770,7 +776,7 @@ Software:
 
 ## 致謝
 
-感謝 Robot Learning 課程的指導，以及 FPO 原作者開源的程式碼基礎。本研究使用的計算資源由 [機構名稱] 提供。
+感謝 Robot Learning 課程的指導，以及 FPO 原作者開源的程式碼基礎。
 
 ---
 

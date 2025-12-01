@@ -89,6 +89,9 @@ def load_environment(env_name: str):
     elif env_name == "go1_joystick":
         env = locomotion.go1_joystick.Joystick(config=locomotion.go1_joystick.default_config())
         return wrap_env_for_fpo(env)
+    elif env_name == "go1_handstand":
+        env = locomotion.go1_handstand.Handstand(config=locomotion.go1_handstand.default_config())
+        return wrap_env_for_fpo(env)
     else:
         raise ValueError(f"Unknown environment: {env_name}")
 
@@ -193,7 +196,7 @@ def train_single_run(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", type=str, default="humanoid_getup",
-                       choices=["humanoid_getup", "go1_getup", "go1_joystick"])
+                       choices=["humanoid_getup", "go1_getup", "go1_joystick", "go1_handstand"])
     parser.add_argument("--flow_type", type=str, default="ot",
                        choices=["ot", "vp", "cosine"])
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])

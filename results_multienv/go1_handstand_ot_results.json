@@ -1,0 +1,23 @@
+{
+  "env_name": "go1_handstand",
+  "flow_type": "ot",
+  "seed": 0,
+  "eval_results": [
+    {
+      "step": 0,
+      "reward_mean": 0.5347932577133179,
+      "reward_std": 0.2582350969314575
+    },
+    {
+      "step": 1,
+      "reward_mean": 1.5118428468704224,
+      "reward_std": 0.5972365736961365
+    },
+    {
+      "step": 2,
+      "reward_mean": 3.335331439971924,
+      "reward_std": 0.8824478387832642
+    }
+  ],
+  "total_time": 118.54990649223328
+}

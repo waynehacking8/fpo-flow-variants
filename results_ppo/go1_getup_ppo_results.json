@@ -1,0 +1,24 @@
+{
+  "env_name": "go1_getup",
+  "algorithm": "ppo",
+  "seed": 0,
+  "eval_results": [
+    {
+      "step": 0,
+      "reward_mean": 13.471487045288086,
+      "reward_std": 8.003314971923828
+    },
+    {
+      "step": 1,
+      "reward_mean": 12.594117164611816,
+      "reward_std": 8.243412017822266
+    },
+    {
+      "step": 2,
+      "reward_mean": 12.498763084411621,
+      "reward_std": 9.095264434814453
+    }
+  ],
+  "final_reward": 12.498763084411621,
+  "total_time": 159.16372275352478
+}

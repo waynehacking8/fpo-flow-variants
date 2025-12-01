@@ -1,62 +1,97 @@
 {
-  "go1_joystick": {
+  "go1_handstand": {
+    "ot": {
+      "env_name": "go1_handstand",
+      "flow_type": "ot",
+      "seed": 0,
+      "eval_results": [
+        {
+          "step": 0,
+          "reward_mean": 0.5347932577133179,
+          "reward_std": 0.2582350969314575
+        },
+        {
+          "step": 1,
+          "reward_mean": 1.5118428468704224,
+          "reward_std": 0.5972365736961365
+        },
+        {
+          "step": 2,
+          "reward_mean": 3.335331439971924,
+          "reward_std": 0.8824478387832642
+        }
+      ],
+      "total_time": 118.54990649223328
+    },
+    "vp": {
+      "env_name": "go1_handstand",
+      "flow_type": "vp",
+      "seed": 0,
+      "eval_results": [
+        {
+          "step": 0,
+          "reward_mean": 0.5350383520126343,
+          "reward_std": 0.2679237127304077
+        },
+        {
+          "step": 1,
+          "reward_mean": 0.6894276142120361,
+          "reward_std": 0.29281508922576904
+        },
+        {
+          "step": 2,
+          "reward_mean": 1.1813409328460693,
+          "reward_std": 0.6188043355941772
+        }
+      ],
+      "total_time": 96.54789066314697
+    },
     "cosine": {
-      "env_name": "go1_joystick",
+      "env_name": "go1_handstand",
       "flow_type": "cosine",
       "seed": 0,
       "eval_results": [
         {
           "step": 0,
-          "reward_mean": 0.0008788030245341361,
-          "reward_std": 0.0030914887320250273
+          "reward_mean": 0.5278992652893066,
+          "reward_std": 0.2583730220794678
         },
         {
-          "step": 3,
-          "reward_mean": 0.002037452533841133,
-          "reward_std": 0.004933562129735947
+          "step": 1,
+          "reward_mean": 0.7118560075759888,
+          "reward_std": 0.279797226190567
         },
         {
-          "step": 6,
-          "reward_mean": 0.0015705721452832222,
-          "reward_std": 0.003593118628486991
-        },
-        {
-          "step": 9,
-          "reward_mean": 0.003644071752205491,
-          "reward_std": 0.0067883143201470375
-        },
-        {
-          "step": 12,
-          "reward_mean": 0.0062182145193219185,
-          "reward_std": 0.013142343610525131
-        },
-        {
-          "step": 16,
-          "reward_mean": 0.044977426528930664,
-          "reward_std": 0.10716333985328674
-        },
-        {
-          "step": 19,
-          "reward_mean": 0.43468886613845825,
-          "reward_std": 0.6922906041145325
-        },
-        {
-          "step": 22,
-          "reward_mean": 1.7329025268554688,
-          "reward_std": 1.9057334661483765
-        },
-        {
-          "step": 25,
-          "reward_mean": 2.731588363647461,
-          "reward_std": 2.797041177749634
-        },
-        {
-          "step": 29,
-          "reward_mean": 3.5106234550476074,
-          "reward_std": 3.380350351333618
+          "step": 2,
+          "reward_mean": 1.3724013566970825,
+          "reward_std": 0.635174572467804
         }
       ],
-      "total_time": 385.7531154155731
+      "total_time": 98.07261347770691
+    },
+    "ppo": {
+      "env_name": "go1_handstand",
+      "algorithm": "ppo",
+      "seed": 0,
+      "eval_results": [
+        {
+          "step": 0,
+          "reward_mean": 0.8244816064834595,
+          "reward_std": 0.14215302467346191
+        },
+        {
+          "step": 1,
+          "reward_mean": 1.8569128513336182,
+          "reward_std": 0.1280701607465744
+        },
+        {
+          "step": 2,
+          "reward_mean": 1.775514006614685,
+          "reward_std": 0.05819662660360336
+        }
+      ],
+      "final_reward": 1.775514006614685,
+      "total_time": 87.9414849281311
     }
   }
 }

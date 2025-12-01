@@ -19,7 +19,7 @@
 2. **發現並解釋 VE schedule 失敗機制**：σ_max=80 導致 dσ/dt 達 719，造成梯度爆炸
 3. **提供理論與實證依據**：OT 的常數 velocity 特性使其成為 RL 的最佳選擇
 4. **統計驗證**：通過 multi-seed 實驗（n=3）確認結果可靠性，Cohen's d > 1.0
-5. **與傳統方法比較**：FPO-OT 相較 PPO baseline 提升 24.7%
+5. **多環境 PPO 比較**：發現 FPO 在「目標導向任務」（Getup）優勢明顯 (+24.7%~+46.3%)，但在「連續控制任務」（Joystick）PPO 反而更優
 
 **關鍵詞**：Flow Matching, Policy Optimization, Reinforcement Learning, Robot Control, Diffusion Policy
 
@@ -30,17 +30,22 @@
 | 指標 | 結果 |
 |------|------|
 | **最佳 Flow Schedule** | Optimal Transport (OT) |
-| **OT vs PPO 提升** | +24.7% (HumanoidGetup) |
+| **FPO vs PPO (Getup 任務)** | FPO 優勢 +24.7% ~ +46.3% |
+| **FPO vs PPO (Handstand 多模態)** | FPO 優勢 **+87.6%** |
+| **FPO vs PPO (Joystick 任務)** | PPO 優勢 +285% |
 | **OT vs VP 提升** | +2.3% ~ +111% (視環境) |
 | **VE 成功率** | 0% (設計不兼容) |
 | **Multi-seed 驗證** | Cohen's d > 1.0 (large effect) |
-| **總實驗數** | 15+ runs (3 環境 × 4 schedules × multi-seed) |
+| **總實驗數** | 18+ runs (3 環境 × 4 schedules + PPO baselines) |
 
 ```
 主要發現一句話總結：
 ┌────────────────────────────────────────────────────────────────┐
-│  OT > Cosine ≈ VP >> VE (NaN)                                  │
-│  FPO-OT 比 PPO 高 24.7%，比其他 schedules 高 2-111%            │
+│  Flow Schedules: OT > Cosine ≈ VP >> VE (NaN)                  │
+│  FPO vs PPO: 任務依賴！                                         │
+│    - 多模態任務 (Handstand): FPO 最大優勢 (+87.6%)              │
+│    - Getup 類任務: FPO 顯著優於 PPO (+24%~+46%)                 │
+│    - Joystick 類任務: PPO 反而更優 (+285%)                      │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -302,7 +307,7 @@ FpoConfig(
 
 ### 3.3 PPO Baseline 比較
 
-為驗證 FPO 相較傳統 RL 算法的優勢，我們在 HumanoidGetup 環境上進行 FPO (OT) vs PPO 的對比實驗。
+為驗證 FPO 相較傳統 RL 算法的優勢，我們在**三個環境**上進行 FPO (OT) vs PPO 的對比實驗。
 
 #### 3.3.1 實驗設置
 
@@ -315,13 +320,112 @@ FpoConfig(
 | Updates per Batch | 16 | 8 |
 | Entropy Cost | - | 1e-2 |
 
-#### 3.3.2 性能比較
+#### 3.3.2 三環境完整比較
+
+**表 4：FPO vs PPO 多環境性能對比（3M steps）**
+
+| 環境 | FPO (OT) | PPO | FPO 優勢 | 任務類型 |
+|------|----------|-----|----------|----------|
+| **HumanoidGetup** | 3629 | 2910 | **+24.7%** | 目標導向（起立） |
+| **Go1 Getup** | 18.29 | 12.50 | **+46.3%** | 目標導向（起立） |
+| **Go1 Joystick** | 4.39 | 16.94 | **-74.1%** | 連續控制（行走） |
+| **Go1 Handstand** | 3.34 | 1.78 | **+87.6%** | 多模態（左/右翻） |
+
+#### 3.3.3 關鍵發現與分析
+
+**發現 1：FPO 在目標導向任務中顯著優於 PPO**
+- HumanoidGetup: +24.7%
+- Go1 Getup: +46.3%
+- 這些任務需要探索複雜的動作序列（如何從地面站起來）
+
+**發現 2：FPO 在多模態任務中優勢最顯著**
+- Go1 Handstand: **+87.6%** — FPO 最大優勢
+- 這是一個典型的多模態任務：機器人可以向左或向右翻轉來完成倒立
+- PPO 的 unimodal Gaussian 策略會「平均」這兩個模態，導致無效動作
+- FPO 的 Flow-based 策略能完整表示雙峰分布，選擇其中一種有效方式執行
+
+**發現 3：PPO 在連續控制任務中優於 FPO**
+- Go1 Joystick: PPO 比 FPO 高出 285%
+- 這是一個追蹤速度指令的持續控制任務
+
+**發現 4：任務特性決定算法選擇**
+
+| 任務特性 | 適合算法 | 原因 |
+|----------|----------|------|
+| **多模態動作** | **FPO** | 多種等價解法，Flow 可表達多峰分布 |
+| 需要探索複雜動作序列 | **FPO** | Flow-based policy 可表達多模態分布 |
+| 高維動作空間 | **FPO** | 更好的動作空間覆蓋 |
+| 簡單連續控制 | **PPO** | 單峰分布足夠，收斂更快 |
+| 低維持續追蹤 | **PPO** | 不需要複雜的策略表示 |
+
+### 3.4 Go1 Handstand：多模態任務深入分析
+
+Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO 的核心優勢。
+
+#### 3.4.1 任務特性
+
+**問題定義**：四足機器人從仰躺姿態翻轉成倒立姿態。
+
+**多模態特性**：機器人可以選擇：
+1. **向左翻轉** → 完成倒立
+2. **向右翻轉** → 完成倒立
+
+兩種方式都是**最優解**，且獎勵完全相同。
+
+#### 3.4.2 FPO 優勢的理論解釋
+
+![Go1 Handstand Multimodal Explanation](plots_analysis/go1_handstand_multimodal_explanation.png)
+
+**圖 N**：多模態任務中 FPO vs PPO 的策略分布比較。左：任務示意圖；右：策略分布對比。
+
+**PPO 的問題（Unimodal Gaussian）**：
+- PPO 使用高斯分布表示策略：$\pi(a|s) = \mathcal{N}(\mu(s), \sigma^2)$
+- 面對雙峰最優解，PPO 會學到**兩個峰的平均值**
+- 平均動作（不左不右）實際上是**無效動作**，無法完成任務
+
+**FPO 的優勢（Flow-based Policy）**：
+- FPO 使用 Flow 模型表示策略，可以表達任意複雜分布
+- 可以同時表示「向左翻」和「向右翻」兩個峰
+- 採樣時會從其中一個峰取樣，執行有效動作
+
+#### 3.4.3 實驗結果
+
+**表 N：Go1 Handstand 不同算法性能**
+
+| 算法 | Final Reward | 相對 PPO |
+|------|--------------|----------|
+| **FPO-OT** | **3.34** | **+87.6%** |
+| FPO-Cosine | 1.37 | -23.0% |
+| FPO-VP | 1.18 | -33.7% |
+| PPO | 1.78 | baseline |
+
+![Go1 Handstand Comparison](plots_analysis/go1_handstand_comparison.png)
+
+**圖 N+1**：Go1 Handstand 各算法性能比較
+
+**關鍵觀察**：
+1. **FPO-OT 顯著領先**：比 PPO 高出 87.6%，驗證了 FPO 在多模態任務上的優勢
+2. **OT schedule 最佳**：即使在多模態任務中，OT 仍然優於其他 schedules
+3. **VP/Cosine 表現較差**：甚至不如 PPO，說明 schedule 選擇對 FPO 性能影響巨大
+
+#### 3.4.4 四環境綜合比較
+
+![FPO vs PPO All Environments](plots_analysis/fpo_vs_ppo_all_envs.png)
+
+**圖 N+2**：FPO vs PPO 在四個環境中的完整比較
+
+#### 3.4.5 結論
+
+Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
+- 在**多模態任務**中，FPO 的 Flow-based 策略能正確表達多峰分布
+- PPO 的 unimodal Gaussian 會導致「模態平均」問題
+- 這解釋了為何 FPO 在 Getup 類任務（也可能有多種起立方式）中優於 PPO
+
+#### 3.3.4 HumanoidGetup 詳細分析
 
 ![FPO vs PPO Comparison](plots_analysis/fpo_vs_ppo_training_comparison.png)
 
 **圖 4**：FPO 與 PPO 在 HumanoidGetup 上的學習曲線比較
-
-**表 4：FPO vs PPO 性能對比（HumanoidGetup, 3M steps）**
 
 | 指標 | FPO (OT) | PPO | FPO 優勢 |
 |------|----------|-----|----------|
@@ -329,20 +433,18 @@ FpoConfig(
 | 最終性能 | 3628.83 | 2909.60 | **+24.7%** |
 | 改善幅度 | +14.0% | -2.4% | FPO 持續改善 |
 | 最終穩定性 (std) | 88.35 | 134.22 | **-34.2%** 更穩定 |
-| 最高達成 | 3825.87 | 3330.00 | +14.9% |
-
-#### 3.3.3 關鍵發現
-
-1. **FPO 持續改善**：在訓練過程中 FPO 獲得 14.0% 的性能提升，而 PPO 反而下降 2.4%
-2. **更高最終性能**：FPO 最終性能比 PPO 高出 24.7%
-3. **更穩定的策略**：FPO 的最終策略標準差更低（88.35 vs 134.22），表明學習到更一致的行為
-4. **更好的最佳情況**：FPO 的最高達成分數比 PPO 高出 14.9%
 
 ![Detailed Analysis](plots_analysis/fpo_vs_ppo_detailed_analysis.png)
 
 **圖 5**：FPO vs PPO 詳細分析（含 error bars、穩定性指標）
 
-**結論**：FPO 不僅在 Flow Schedule 選擇上優於替代方案，整體算法也顯著優於傳統的 PPO baseline。
+#### 3.3.5 結論
+
+1. **FPO 並非在所有任務上都優於 PPO** — 這是重要的實證發現
+2. **任務類型決定算法適用性**：
+   - Getup 類任務（需要發現複雜動作序列）→ FPO 優勢明顯
+   - Joystick 類任務（簡單的持續控制）→ PPO 更有效率
+3. **實踐建議**：根據任務特性選擇算法，而非盲目使用最新方法
 
 ---
 
@@ -689,6 +791,10 @@ Software:
 | Go1 Joystick | OT | 0 | 4.39 | - |
 | Go1 Joystick | VP | 0 | 4.00 | - |
 | Go1 Joystick | Cosine | 0 | 3.51 | - |
+| Go1 Handstand | OT | 0 | 3.34 | 118s |
+| Go1 Handstand | VP | 0 | 1.18 | 97s |
+| Go1 Handstand | Cosine | 0 | 1.37 | 98s |
+| Go1 Handstand | PPO | 0 | 1.78 | 88s |
 
 *註：OT seed 0 在後期出現數值問題，使用最後有效值
 

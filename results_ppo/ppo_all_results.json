@@ -1,0 +1,26 @@
+{
+  "spot_getup": {
+    "env_name": "spot_getup",
+    "algorithm": "ppo",
+    "seed": 0,
+    "eval_results": [
+      {
+        "step": 0,
+        "reward_mean": 14.874321937561035,
+        "reward_std": 9.716662406921387
+      },
+      {
+        "step": 1,
+        "reward_mean": 13.783233642578125,
+        "reward_std": 10.275471687316895
+      },
+      {
+        "step": 2,
+        "reward_mean": 13.855059623718262,
+        "reward_std": 11.409480094909668
+      }
+    ],
+    "final_reward": 13.855059623718262,
+    "total_time": 88.10403847694397
+  }
+}

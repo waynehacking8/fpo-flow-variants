@@ -67,8 +67,8 @@ Flow Matching 學習一個連續時間的變換，將簡單分布（噪聲）映
 $$\frac{dx_t}{dt} = v_t(x_t), \quad x_0 \sim \mathcal{N}(0, I), \quad x_1 \sim p_{data}$$
 
 **與 Diffusion Models 的關係**：
-- Diffusion: 學習 score function $\nabla_x \log p_t(x)$
-- Flow Matching: 學習 velocity field $v_t(x)$
+- Diffusion: 學習 score function ∇ₓ log p_t(x)
+- Flow Matching: 學習 velocity field v_t(x)
 - Flow Matching 通常更穩定、訓練更快
 
 ### 1.3 Flow Schedule 的重要性
@@ -93,14 +93,14 @@ $$x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$$
 $$\alpha_t = 1 - t, \quad \sigma_t = t$$
 
 - **來源**：Flow Matching (Lipman et al., 2022)
-- **特點**：線性插值 $x_t = (1-t) \cdot x_1 + t \cdot \epsilon$，velocity 為常數 $v = \epsilon - x_1$
+- **特點**：線性插值 x_t = (1-t)·x₁ + t·ε，velocity 為常數 v = ε - x₁
 - **優勢**：最簡單、最短路徑
 
 #### 2.1.2 Variance Preserving (VP)
 $$\alpha_t = \cos(\pi t/2), \quad \sigma_t = \sin(\pi t/2)$$
 
 - **來源**：DDPM (Ho et al., 2020)
-- **特點**：$\alpha_t^2 + \sigma_t^2 = 1$，總變異數恆定
+- **特點**：α_t² + σ_t² = 1，總變異數恆定
 - **用途**：圖像生成的主流選擇
 
 #### 2.1.3 Variance Exploding (VE)
@@ -108,7 +108,7 @@ $$\alpha_t = 1, \quad \sigma_t = \sigma_{min} \cdot (\sigma_{max}/\sigma_{min})^
 
 - **來源**：Score SDE (Song et al., 2021)
 - **特點**：數據固定，噪聲指數增長
-- **參數**：$\sigma_{min}=0.01$, $\sigma_{max}=80$
+- **參數**：σ_min=0.01, σ_max=80
 
 #### 2.1.4 Cosine Schedule
 $$\alpha_t = \cos^2(\pi t/2), \quad \sigma_t = \sqrt{1-\alpha_t^2}$$
@@ -124,8 +124,8 @@ $$\alpha_t = \cos^2(\pi t/2), \quad \sigma_t = \sqrt{1-\alpha_t^2}$$
 
 | Schedule | Loss Function | 說明 |
 |----------|--------------|------|
-| **OT** | $\|\epsilon - \hat{x}_1\|^2$ (eps prediction) | 原始 FPO 官方實現 |
-| **VP/Cosine** | $\|v_\theta - v_t^{target}\|^2$ (velocity matching) | 標準 Flow Matching |
+| **OT** | ‖ε - x̂₁‖² (eps prediction) | 原始 FPO 官方實現 |
+| **VP/Cosine** | ‖v_θ - v_t^target‖² (velocity matching) | 標準 Flow Matching |
 
 **OT (原始 FPO)**：
 ```python
@@ -348,7 +348,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 **圖 8**：多模態任務中 FPO vs PPO 的策略分布比較。左：任務示意圖；右：策略分布對比。
 
 **PPO 的問題（Unimodal Gaussian）**：
-- PPO 使用高斯分布表示策略：$\pi(a|s) = \mathcal{N}(\mu(s), \sigma^2)$
+- PPO 使用高斯分布表示策略：π(a|s) = N(μ(s), σ²)
 - 面對雙峰最優解，PPO 會學到**兩個峰的平均值**
 - 平均動作（不左不右）實際上是**無效動作**，無法完成任務
 
@@ -477,7 +477,7 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 
 **圖 7**：Signal-to-Noise Ratio 比較（對數尺度）
 
-**SNR 定義**：$\text{SNR} = \alpha_t / \sigma_t$
+**SNR 定義**：SNR = α_t / σ_t
 
 | Schedule | SNR at t=1 |
 |----------|-----------|
@@ -501,9 +501,9 @@ VE 的 SNR 在 t=1 時僅有 1/80，信號完全被噪聲淹沒。
 
 **結論**：VE 的高噪聲設計在圖像中提供多樣性，但在 RL 中造成不穩定。
 
-> **推論 1 (VE 不可行條件)**：對於 Variance Exploding schedule，若 $\sigma_{max} > O(\|x_1\|_{max})$，則 velocity target $v_t = \frac{d\sigma_t}{dt} \epsilon$ 在 $t \to 1$ 時發散，導致訓練失敗。
+> **推論 1 (VE 不可行條件)**：對於 Variance Exploding schedule，若 σ_max > O(‖x₁‖_max)，則 velocity target v_t = (dσ_t/dt)·ε 在 t → 1 時發散，導致訓練失敗。
 >
-> 具體而言，當 $\sigma_{max} = 80$，$\|x_1\| \leq 1$（正規化動作空間）時：
+> 具體而言，當 σ_max = 80，‖x₁‖ ≤ 1（正規化動作空間）時：
 > $$\frac{d\sigma_t}{dt}\bigg|_{t=1} = \sigma_{max} \ln\left(\frac{\sigma_{max}}{\sigma_{min}}\right) \approx 718.97$$
 >
 > 此梯度量級遠超有界動作空間，必然導致數值溢出。
@@ -541,29 +541,29 @@ velocity_target = jnp.clip(velocity_target, -MAX_VEL, MAX_VEL)
 
 > **定理 1 (OT 最優性)**：在 Flow Policy Optimization 中，Optimal Transport schedule 在以下意義下是最優的：
 >
-> 設 $x_t = \alpha_t x_1 + \sigma_t x_0$ 為插值路徑，velocity target 為 $v_t = \frac{d\alpha_t}{dt} x_1 + \frac{d\sigma_t}{dt} x_0$。
+> 設 x_t = α_t·x₁ + σ_t·x₀ 為插值路徑，velocity target 為 v_t = (dα_t/dt)·x₁ + (dσ_t/dt)·x₀。
 >
-> **(a) 路徑長度最小化**：OT 的路徑長度 $\int_0^1 \|v_t\| dt = \|x_1 - x_0\|$ 是所有滿足邊界條件 $x_0 \sim \mathcal{N}(0,I), x_1 \sim \pi^*$ 的路徑中最短的。
+> **(a) 路徑長度最小化**：OT 的路徑長度 ∫₀¹ ‖v_t‖ dt = ‖x₁ - x₀‖ 是所有滿足邊界條件 x₀ ~ N(0,I), x₁ ~ π* 的路徑中最短的。
 >
-> **(b) Velocity 複雜度最小化**：OT 是唯一使 velocity 與時間 $t$ 無關的 schedule（$v^{OT} = x_0 - x_1 = \epsilon - x_1 = \text{const}$）。
+> **(b) Velocity 複雜度最小化**：OT 是唯一使 velocity 與時間 t 無關的 schedule（v^OT = x₀ - x₁ = ε - x₁ = const）。
 >
-> **(c) 梯度有界性**：對於任意有界的 $x_0, x_1$，OT 的 $\|v_t\|$ 和 $\|\nabla_\theta \mathcal{L}\|$ 皆有界。
+> **(c) 梯度有界性**：對於任意有界的 x₀, x₁，OT 的 ‖v_t‖ 和 ‖∇_θ L‖ 皆有界。
 
 **證明概要**：
 
 (a) 由 Benamou-Brenier 公式，最短路徑的 Wasserstein-2 距離由直線路徑達成。
 
-(b) 對 OT：$\alpha_t = 1-t, \sigma_t = t$，則 $v_t = (-1) \cdot x_1 + 1 \cdot x_0 = x_0 - x_1$，與 $t$ 無關。對其他 schedules，$\frac{d\alpha_t}{dt}$ 和 $\frac{d\sigma_t}{dt}$ 皆為 $t$ 的函數。
+(b) 對 OT：α_t = 1-t, σ_t = t，則 v_t = (-1)·x₁ + 1·x₀ = x₀ - x₁，與 t 無關。對其他 schedules，dα_t/dt 和 dσ_t/dt 皆為 t 的函數。
 
-(c) 由 (b)，$\|v^{OT}\| = \|x_0 - x_1\| \leq \|x_1\| + \|x_0\|$，在動作空間有界時保持有界。 ∎
+(c) 由 (b)，‖v^OT‖ = ‖x₀ - x₁‖ ≤ ‖x₁‖ + ‖x₀‖，在動作空間有界時保持有界。 ∎
 
 ### 5.1 幾何視角：最短路徑
 
 | Schedule | 路徑類型 | 幾何長度 |
 |----------|----------|----------|
-| OT | 直線 | $\|x_1 - x_0\|$ |
-| VP | 球面弧 | $\frac{\pi}{2}\|x_1 - x_0\|$ |
-| Cosine | 曲線 | > $\|x_1 - x_0\|$ |
+| OT | 直線 | ‖x₁ - x₀‖ |
+| VP | 球面弧 | (π/2)·‖x₁ - x₀‖ |
+| Cosine | 曲線 | > ‖x₁ - x₀‖ |
 
 OT 提供最短的歐氏路徑，減少：
 - 積分誤差累積
@@ -580,7 +580,7 @@ Cosine: v(t) = 複雜的時變函數            ← 更複雜
 VE:     v(t) = 爆炸                     ← 無法學習
 ```
 
-OT 的 velocity 與時間 t 無關，網路只需學習 $x_0 - x_1 = \epsilon - x_1$ 的映射。
+OT 的 velocity 與時間 t 無關，網路只需學習 x₀ - x₁ = ε - x₁ 的映射。
 
 ### 5.3 訓練穩定性視角
 

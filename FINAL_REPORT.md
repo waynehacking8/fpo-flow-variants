@@ -419,9 +419,9 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 #### 3.4.4 四環境綜合比較
 
-![FPO vs PPO All Environments](plots_analysis/fpo_vs_ppo_all_envs.png)
+![FPO vs PPO All Environments](plots_multienv/fpo_vs_ppo_summary.png)
 
-**圖 10**：FPO vs PPO 在四個環境中的完整比較
+**圖 10**：FPO vs PPO 在四個環境中的完整比較（每個環境獨立縮放以便清晰比較）
 
 #### 3.4.5 結論
 

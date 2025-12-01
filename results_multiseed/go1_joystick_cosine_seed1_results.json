@@ -1,0 +1,24 @@
+{
+  "env_name": "go1_joystick",
+  "flow_type": "cosine",
+  "seed": 1,
+  "eval_results": [
+    {
+      "step": 0,
+      "reward_mean": 0.001289669773541391,
+      "reward_std": 0.0033278921619057655
+    },
+    {
+      "step": 1,
+      "reward_mean": 0.0009351221960969269,
+      "reward_std": 0.0035111880861222744
+    },
+    {
+      "step": 2,
+      "reward_mean": 0.0007557894568890333,
+      "reward_std": 0.0022318591363728046
+    }
+  ],
+  "final_reward": 0.0007557894568890333,
+  "total_time": 2397.788065433502
+}

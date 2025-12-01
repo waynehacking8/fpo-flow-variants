@@ -237,6 +237,10 @@ for idx, env in enumerate(envs):
     color = 'green' if imp > 0 else 'red'
     text = f'+{imp:.0f}%' if imp > 0 else f'{imp:.0f}%'
 
+    # Set y-axis limit to leave room for labels (20% extra space)
+    max_reward = max(rewards)
+    ax.set_ylim(0, max_reward * 1.25)
+
     # Add value labels on bars
     for bar, r in zip(bars, rewards):
         height = bar.get_height()
@@ -246,12 +250,9 @@ for idx, env in enumerate(envs):
                    textcoords="offset points",
                    ha='center', va='bottom', fontsize=10)
 
-    # Add improvement text at top
-    ax.text(0.5, 0.95, f'FPO improvement: {text}', transform=ax.transAxes,
-            ha='center', va='top', fontsize=11, color=color, fontweight='bold')
-
     ax.set_ylabel('Final Reward', fontsize=11)
-    ax.set_title(env, fontsize=12, fontweight='bold')
+    # Include improvement in title
+    ax.set_title(f'{env}\n(FPO improvement: {text})', fontsize=11, fontweight='bold', color='black')
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=11)
     ax.grid(axis='y', alpha=0.3)

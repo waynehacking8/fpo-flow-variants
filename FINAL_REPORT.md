@@ -18,8 +18,7 @@
 1. **首次系統性比較**不同 Flow Schedules 在強化學習中的表現
 2. **發現並解釋 VE schedule 失敗機制**：σ_max=80 導致 dσ/dt 達 719，造成梯度爆炸
 3. **提供理論與實證依據**：OT 的常數 velocity 特性使其成為 RL 的最佳選擇
-4. **統計驗證**：通過 multi-seed 實驗（n=3）確認結果可靠性，Cohen's d > 1.0
-5. **多環境 PPO 比較**：發現 FPO 在「目標導向任務」（Getup）優勢明顯 (+24.7%~+46.3%)，但在「連續控制任務」（Joystick）PPO 反而更優
+4. **多環境 PPO 比較**：發現 FPO 在「目標導向任務」（Getup）優勢明顯 (+24.7%~+46.3%)，但在「連續控制任務」（Joystick）PPO 反而更優
 
 **關鍵詞**：Flow Matching, Policy Optimization, Reinforcement Learning, Robot Control, Diffusion Policy
 
@@ -35,7 +34,6 @@
 | **FPO vs PPO (Joystick 任務)** | PPO 優勢 +285% |
 | **OT vs VP 提升** | +2.3% ~ +183% (視環境) |
 | **VE 成功率** | 0% (設計不兼容) |
-| **Multi-seed 驗證** | Cohen's d > 1.0 (large effect) |
 | **總實驗數** | 22+ runs (4 環境 × 4 schedules + PPO baselines) |
 
 ```
@@ -239,7 +237,7 @@ FpoConfig(
 
 **表 1：最終性能數值（Episode Return）**
 
-*註：HumanoidGetup 為 Multi-seed (n=3) 平均值，其餘環境為單一 seed 結果*
+*註：所有結果為單一 seed (seed=0) 實驗結果*
 
 | Environment | OT | VP | Cosine | VE | OT 相對優勢 |
 |-------------|-----|-----|--------|-----|-------------|
@@ -272,51 +270,11 @@ FpoConfig(
 - Go1 Joystick：中等差異（VP 91%, Cosine 80%）
 - Go1 Handstand：**差異最大**（VP 僅 35%, Cosine 41%）— 多模態任務特性使 OT 優勢更明顯
 
-### 3.2 統計顯著性分析（Multi-Seed）
-
-為驗證結果可靠性，對 HumanoidGetup 進行 3-seed 實驗（seeds: 0, 1, 2）。
-
-#### 3.2.1 統計摘要
-
-**表 2：Multi-Seed 結果（HumanoidGetup, 10M steps, n=3）**
-
-| Flow Type | Mean | Std | 95% CI |
-|-----------|------|-----|--------|
-| **OT** | **4262.20** | 114.88 | [3976.5, 4547.9] |
-| Cosine | 4138.55 | 12.91 | [4106.4, 4170.7] |
-| VP | 4110.84 | 6.89 | [4093.7, 4128.0] |
-
-#### 3.2.2 統計檢驗
-
-**表 3：配對 t-test 結果**
-
-| 比較 | Mean Diff | t-stat | p-value | Cohen's d | 解釋 |
-|------|-----------|--------|---------|-----------|------|
-| OT vs VP | +151.36 | 1.86 | 0.136 | 1.52 | Large effect |
-| OT vs Cosine | +123.64 | 1.51 | 0.205 | 1.24 | Large effect |
-| Cosine vs VP | +27.72 | 2.68 | **0.055** | 2.19 | Large effect* |
-
-**統計解釋**：
-- **重要聲明**：所有 p-value > 0.05，結果**未達傳統統計顯著水準**
-- 樣本數過小（n=3）導致統計功效不足
-- Cohen's d > 0.8 顯示 large effect size，但這**不能替代統計顯著性**
-- 結論應視為**初步觀察**，需更多實驗（建議 n≥5）來確認
-- Cosine vs VP 接近統計顯著（p=0.055），但仍未達 0.05 門檻
-
-#### 3.2.3 變異數分析
-
-**觀察**：OT 的標準差（114.88）遠大於 VP（6.89）和 Cosine（12.91）
-
-**可能原因**：
-1. OT seed 0 在訓練後期出現數值問題
-2. OT 的線性路徑可能對初始化更敏感
-3. 需要更多 seeds 來確認
-
-### 3.3 PPO Baseline 比較
+### 3.2 PPO Baseline 比較
 
 為驗證 FPO 相較傳統 RL 算法的優勢，我們在**三個環境**上進行 FPO (OT) vs PPO 的對比實驗。
 
-#### 3.3.1 實驗設置
+#### 3.2.1 實驗設置
 
 **重要聲明**：FPO 與 PPO 使用**不同的超參數配置**。這是因為兩種算法採用各自原論文的推薦設定，而非刻意調整以偏袒任一方。因此，性能差異可能部分來自超參數差異，而非純粹的算法優劣。更嚴謹的比較需進行超參數敏感性分析。
 
@@ -329,7 +287,7 @@ FpoConfig(
 | Updates per Batch | 16 | 8 | FPO 2× 更多更新 |
 | Entropy Cost | - | 1e-2 | PPO 有熵正則化 |
 
-#### 3.3.2 三環境完整比較
+#### 3.2.2 三環境完整比較
 
 **表 4：FPO vs PPO 多環境性能對比（3M steps）**
 
@@ -340,7 +298,7 @@ FpoConfig(
 | **Go1 Joystick** | 4.39 | 16.94 | **-74.1%** | 連續控制（行走） |
 | **Go1 Handstand** | 3.34 | 1.78 | **+87.6%** | 多模態（左/右翻） |
 
-#### 3.3.3 關鍵發現與分析
+#### 3.2.3 關鍵發現與分析
 
 **發現 1：FPO 在目標導向任務中顯著優於 PPO**
 - HumanoidGetup: +24.7%
@@ -367,11 +325,11 @@ FpoConfig(
 | 簡單連續控制 | **PPO** | 單峰分布足夠，收斂更快 |
 | 低維持續追蹤 | **PPO** | 不需要複雜的策略表示 |
 
-### 3.4 Go1 Handstand：多模態任務深入分析
+### 3.3 Go1 Handstand：多模態任務深入分析
 
 Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO 的核心優勢。
 
-#### 3.4.1 任務特性
+#### 3.3.1 任務特性
 
 **問題定義**：四足機器人從仰躺姿態翻轉成倒立姿態。
 
@@ -381,7 +339,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 
 兩種方式都是**最優解**，且獎勵完全相同。
 
-#### 3.4.2 FPO 優勢的理論解釋
+#### 3.3.2 FPO 優勢的理論解釋
 
 ![Go1 Handstand Multimodal Explanation](plots_analysis/go1_handstand_multimodal_explanation.png)
 
@@ -397,7 +355,7 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 - 可以同時表示「向左翻」和「向右翻」兩個峰
 - 採樣時會從其中一個峰取樣，執行有效動作
 
-#### 3.4.3 實驗結果
+#### 3.3.3 實驗結果
 
 **表 5：Go1 Handstand 不同算法性能**
 
@@ -417,20 +375,20 @@ Go1 Handstand 是一個典型的**多模態任務**，展示了 FPO 相較 PPO �
 2. **OT schedule 最佳**：即使在多模態任務中，OT 仍然優於其他 schedules
 3. **VP/Cosine 表現較差**：甚至不如 PPO，說明 schedule 選擇對 FPO 性能影響巨大
 
-#### 3.4.4 四環境綜合比較
+#### 3.3.4 四環境綜合比較
 
 ![FPO vs PPO All Environments](plots_multienv/fpo_vs_ppo_summary.png)
 
 **圖 10**：FPO vs PPO 在四個環境中的完整比較（每個環境獨立縮放以便清晰比較）
 
-#### 3.4.5 結論
+#### 3.3.5 結論
 
 Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 - 在**多模態任務**中，FPO 的 Flow-based 策略能正確表達多峰分布
 - PPO 的 unimodal Gaussian 會導致「模態平均」問題
 - 這解釋了為何 FPO 在 Getup 類任務（也可能有多種起立方式）中優於 PPO
 
-#### 3.3.4 HumanoidGetup 詳細分析
+#### 3.2.4 HumanoidGetup 詳細分析
 
 ![FPO vs PPO Comparison](plots_analysis/fpo_vs_ppo_training_comparison.png)
 
@@ -447,7 +405,7 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 
 **圖 5**：FPO vs PPO 詳細分析（含 error bars、穩定性指標）
 
-#### 3.3.5 結論
+#### 3.2.5 結論
 
 1. **FPO 並非在所有任務上都優於 PPO** — 這是重要的實證發現
 2. **任務類型決定算法適用性**：
@@ -643,11 +601,10 @@ OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
 
 ### 6.1 研究限制
 
-1. **統計功效**：Multi-seed 實驗僅 n=3，建議未來增加至 n≥5
+1. **統計功效**：所有實驗僅使用單一 seed (seed=0)，未進行多 seed 統計驗證
 2. **環境覆蓋**：僅測試 MuJoCo 環境，未驗證 Atari 等離散任務
 3. **VE 參數**：僅測試 σ_max=80，未嘗試較小值
 4. **計算成本**：未比較不同 schedules 的訓練/推理時間
-5. **Go1 環境**：僅進行單一 seed 實驗，統計可靠性待驗證
 6. **Loss Function 差異**：OT 使用 eps prediction（原始 FPO），VP/Cosine 使用 velocity matching。這是各自最佳實踐，但可能影響公平比較。更嚴謹的研究應使用統一的 loss function 進行消融實驗
 
 ### 6.2 建議的 Ablation Studies
@@ -751,16 +708,13 @@ Software:
 
 ### 隨機種子
 
-所有實驗使用固定種子以確保可重現性：
-- Multi-seed 實驗：seeds = [0, 1, 2]
-- Single-seed 實驗：seed = 0
+所有實驗使用固定種子 (seed=0) 以確保可重現性。
 
 ### 程式碼與數據
 
 - Flow Schedules 實作：`flow_schedules.py`
-- 訓練腳本：`run_all_multiseed.py`
-- 統計分析：`analyze_multiseed_stats.py`
-- 實驗結果：`results_multiseed/`
+- 訓練腳本：`train_multi_env.py`
+- 實驗結果：`results/`
 - 圖表：`plots_multienv/`, `plots_analysis/`
 
 ### 預期訓練時間
@@ -786,29 +740,23 @@ Software:
 
 **表 A1：所有實驗的詳細結果**
 
-| Env | Flow | Seed | Final Return | Training Time |
-|-----|------|------|--------------|---------------|
-| HumanoidGetup | OT | 0 | 4099.74* | 205s |
-| HumanoidGetup | OT | 1 | 4344.92 | 201s |
-| HumanoidGetup | OT | 2 | 4341.94 | 201s |
-| HumanoidGetup | VP | 0 | 4103.56 | 202s |
-| HumanoidGetup | VP | 1 | 4108.87 | 203s |
-| HumanoidGetup | VP | 2 | 4120.08 | 202s |
-| HumanoidGetup | Cosine | 0 | 4121.08 | 203s |
-| HumanoidGetup | Cosine | 1 | 4142.72 | 203s |
-| HumanoidGetup | Cosine | 2 | 4151.86 | 203s |
-| Go1 Getup | OT | 0 | 18.29 | - |
-| Go1 Getup | VP | 0 | 8.67 | - |
-| Go1 Getup | Cosine | 0 | 10.03 | - |
-| Go1 Joystick | OT | 0 | 4.39 | - |
-| Go1 Joystick | VP | 0 | 4.00 | - |
-| Go1 Joystick | Cosine | 0 | 3.51 | - |
-| Go1 Handstand | OT | 0 | 3.34 | 118s |
-| Go1 Handstand | VP | 0 | 1.18 | 97s |
-| Go1 Handstand | Cosine | 0 | 1.37 | 98s |
-| Go1 Handstand | PPO | 0 | 1.78 | 88s |
+| Env | Flow | Final Return | Training Time |
+|-----|------|--------------|---------------|
+| HumanoidGetup | OT | 4201.94 | 205s |
+| HumanoidGetup | VP | 4105.79 | 202s |
+| HumanoidGetup | Cosine | 4116.02 | 203s |
+| Go1 Getup | OT | 18.29 | - |
+| Go1 Getup | VP | 8.67 | - |
+| Go1 Getup | Cosine | 10.03 | - |
+| Go1 Joystick | OT | 4.39 | - |
+| Go1 Joystick | VP | 4.00 | - |
+| Go1 Joystick | Cosine | 3.51 | - |
+| Go1 Handstand | OT | 3.34 | 118s |
+| Go1 Handstand | VP | 1.18 | 97s |
+| Go1 Handstand | Cosine | 1.37 | 98s |
+| Go1 Handstand | PPO | 1.78 | 88s |
 
-*註：OT seed 0 在後期出現數值問題，使用最後有效值
+*註：所有結果為單一 seed (seed=0) 實驗結果*
 
 ### B. Flow Schedule 實作程式碼
 

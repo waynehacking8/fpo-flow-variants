@@ -18,7 +18,7 @@
 1. **首次系統性比較**不同 Flow Schedules 在強化學習中的表現
 2. **發現並解釋 VE schedule 失敗機制**：σ_max=80 導致 dσ/dt 達 719，造成梯度爆炸
 3. **提供理論與實證依據**：OT 的常數 velocity 特性使其成為 RL 的最佳選擇
-4. **多環境 PPO 比較**：發現 FPO 在「目標導向任務」（Getup）優勢明顯 (+24.7%~+46.3%)，但在「連續控制任務」（Joystick）PPO 反而更優
+4. **多環境 PPO 比較**：發現 FPO 在「目標導向任務」（Getup）優勢明顯 (+44.4%~+46.3%)，但在「連續控制任務」（Joystick）PPO 反而更優
 
 **關鍵詞**：Flow Matching, Policy Optimization, Reinforcement Learning, Robot Control, Diffusion Policy
 
@@ -29,7 +29,7 @@
 | 指標 | 結果 |
 |------|------|
 | **最佳 Flow Schedule** | Optimal Transport (OT) |
-| **FPO vs PPO (Getup 任務)** | FPO 優勢 +24.7% ~ +46.3% |
+| **FPO vs PPO (Getup 任務)** | FPO 優勢 +44.4% ~ +46.3% |
 | **FPO vs PPO (Handstand 多模態)** | FPO 優勢 **+87.6%** |
 | **FPO vs PPO (Joystick 任務)** | PPO 優勢 +285% |
 | **OT vs VP 提升** | +2.3% ~ +183% (視環境) |
@@ -42,7 +42,7 @@
 │  Flow Schedules: OT > Cosine ≈ VP >> VE (NaN)                  │
 │  FPO vs PPO: 任務依賴！                                         │
 │    - 多模態任務 (Handstand): FPO 最大優勢 (+87.6%)              │
-│    - Getup 類任務: FPO 顯著優於 PPO (+24%~+46%)                 │
+│    - Getup 類任務: FPO 顯著優於 PPO (+44%~+46%)                 │
 │    - Joystick 類任務: PPO 反而更優 (+285%)                      │
 └────────────────────────────────────────────────────────────────┘
 ```
@@ -90,10 +90,10 @@ $$x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$$
 我們比較以下四種來自不同領域的 schedules：
 
 #### 2.1.1 Optimal Transport (OT) — FPO 原始選擇
-$$\alpha_t = t, \quad \sigma_t = 1 - t$$
+$$\alpha_t = 1 - t, \quad \sigma_t = t$$
 
 - **來源**：Flow Matching (Lipman et al., 2022)
-- **特點**：線性插值，velocity 為常數 $v = x_1 - x_0$
+- **特點**：線性插值 $x_t = (1-t) \cdot x_1 + t \cdot \epsilon$，velocity 為常數 $v = \epsilon - x_1$
 - **優勢**：最簡單、最短路徑
 
 #### 2.1.2 Variance Preserving (VP)
@@ -200,10 +200,10 @@ FpoConfig(
 │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────────────┐ │
 │  │   OT (原始)      │   │   VP (DDPM)     │   │   Cosine (Improved)    │ │
 │  │                 │   │                 │   │                        │ │
-│  │  α_t = t        │   │  α_t = cos(πt/2)│   │  α_t = cos²((t+s)π/2)  │ │
-│  │  σ_t = 1-t      │   │  σ_t = sin(πt/2)│   │  σ_t = √(1-α_t²)       │ │
+│  │  α_t = 1-t      │   │  α_t = cos(πt/2)│   │  α_t = cos²((t+s)π/2)  │ │
+│  │  σ_t = t        │   │  σ_t = sin(πt/2)│   │  σ_t = √(1-α_t²)       │ │
 │  │                 │   │                 │   │                        │ │
-│  │  v* = x₁ - x₀   │   │  v* = f(t)·x₁   │   │  v* = complex(t)       │ │
+│  │  v* = x₀ - x₁   │   │  v* = f(t)·x₁   │   │  v* = complex(t)       │ │
 │  │   (常數!)       │   │     + g(t)·x₀   │   │                        │ │
 │  │                 │   │                 │   │                        │ │
 │  │  ✓ 最短路徑     │   │  ○ 球面路徑     │   │  ○ 平滑曲線             │ │
@@ -241,7 +241,7 @@ FpoConfig(
 
 | Environment | OT | VP | Cosine | VE | OT 相對優勢 |
 |-------------|-----|-----|--------|-----|-------------|
-| HumanoidGetup | **4262.20** | 4110.84 | 4138.55 | NaN | +3.7% vs VP |
+| HumanoidGetup | **4201.94** | 4105.79 | 4116.02 | NaN | +2.3% vs VP |
 | Go1 Getup | **18.29** | 8.67 | 10.03 | NaN | +111% vs VP |
 | Go1 Joystick | **4.39** | 4.00 | 3.51 | NaN | +10% vs VP |
 | Go1 Handstand | **3.34** | 1.18 | 1.37 | NaN | +183% vs VP |
@@ -289,11 +289,13 @@ FpoConfig(
 
 #### 3.2.2 三環境完整比較
 
-**表 4：FPO vs PPO 多環境性能對比（3M steps）**
+**表 4：FPO vs PPO 多環境性能對比**
+
+*註：HumanoidGetup 使用 10M steps，其餘環境使用 3M steps*
 
 | 環境 | FPO (OT) | PPO | FPO 優勢 | 任務類型 |
 |------|----------|-----|----------|----------|
-| **HumanoidGetup** | 3629 | 2910 | **+24.7%** | 目標導向（起立） |
+| **HumanoidGetup** | 4201.94 | 2910 | **+44.4%** | 目標導向（起立） |
 | **Go1 Getup** | 18.29 | 12.50 | **+46.3%** | 目標導向（起立） |
 | **Go1 Joystick** | 4.39 | 16.94 | **-74.1%** | 連續控制（行走） |
 | **Go1 Handstand** | 3.34 | 1.78 | **+87.6%** | 多模態（左/右翻） |
@@ -301,7 +303,7 @@ FpoConfig(
 #### 3.2.3 關鍵發現與分析
 
 **發現 1：FPO 在目標導向任務中顯著優於 PPO**
-- HumanoidGetup: +24.7%
+- HumanoidGetup: +44.4%
 - Go1 Getup: +46.3%
 - 這些任務需要探索複雜的動作序列（如何從地面站起來）
 
@@ -392,18 +394,20 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 
 ![FPO vs PPO Comparison](plots_analysis/fpo_vs_ppo_training_comparison.png)
 
-**圖 4**：FPO 與 PPO 在 HumanoidGetup 上的學習曲線比較
+**圖 4**：FPO 與 PPO 在 HumanoidGetup 上的學習曲線比較（早期 3M steps 分析）
+
+*註：以下表格為早期訓練階段（3M steps）的中間結果，用於展示訓練動態。最終性能請參考表 4（10M steps: FPO=4201.94, PPO=2910, +44.4%）*
 
 | 指標 | FPO (OT) | PPO | FPO 優勢 |
 |------|----------|-----|----------|
 | 初始性能 | 3183.52 | 2981.89 | +6.8% |
-| 最終性能 | 3628.83 | 2909.60 | **+24.7%** |
+| 中期性能 (3M) | 3628.83 | 2909.60 | +24.7% |
 | 改善幅度 | +14.0% | -2.4% | FPO 持續改善 |
-| 最終穩定性 (std) | 88.35 | 134.22 | **-34.2%** 更穩定 |
+| 穩定性 (std) | 88.35 | 134.22 | -34.2% 更穩定 |
 
 ![Detailed Analysis](plots_analysis/fpo_vs_ppo_detailed_analysis.png)
 
-**圖 5**：FPO vs PPO 詳細分析（含 error bars、穩定性指標）
+**圖 5**：FPO vs PPO 詳細分析（含 error bars、穩定性指標）— 早期訓練階段
 
 #### 3.2.5 結論
 
@@ -541,7 +545,7 @@ velocity_target = jnp.clip(velocity_target, -MAX_VEL, MAX_VEL)
 >
 > **(a) 路徑長度最小化**：OT 的路徑長度 $\int_0^1 \|v_t\| dt = \|x_1 - x_0\|$ 是所有滿足邊界條件 $x_0 \sim \mathcal{N}(0,I), x_1 \sim \pi^*$ 的路徑中最短的。
 >
-> **(b) Velocity 複雜度最小化**：OT 是唯一使 velocity 與時間 $t$ 無關的 schedule（$v^{OT} = x_1 - x_0 = \text{const}$）。
+> **(b) Velocity 複雜度最小化**：OT 是唯一使 velocity 與時間 $t$ 無關的 schedule（$v^{OT} = x_0 - x_1 = \epsilon - x_1 = \text{const}$）。
 >
 > **(c) 梯度有界性**：對於任意有界的 $x_0, x_1$，OT 的 $\|v_t\|$ 和 $\|\nabla_\theta \mathcal{L}\|$ 皆有界。
 
@@ -549,9 +553,9 @@ velocity_target = jnp.clip(velocity_target, -MAX_VEL, MAX_VEL)
 
 (a) 由 Benamou-Brenier 公式，最短路徑的 Wasserstein-2 距離由直線路徑達成。
 
-(b) 對 OT：$\alpha_t = t, \sigma_t = 1-t$，則 $v_t = 1 \cdot x_1 + (-1) \cdot x_0 = x_1 - x_0$，與 $t$ 無關。對其他 schedules，$\frac{d\alpha_t}{dt}$ 和 $\frac{d\sigma_t}{dt}$ 皆為 $t$ 的函數。
+(b) 對 OT：$\alpha_t = 1-t, \sigma_t = t$，則 $v_t = (-1) \cdot x_1 + 1 \cdot x_0 = x_0 - x_1$，與 $t$ 無關。對其他 schedules，$\frac{d\alpha_t}{dt}$ 和 $\frac{d\sigma_t}{dt}$ 皆為 $t$ 的函數。
 
-(c) 由 (b)，$\|v^{OT}\| = \|x_1 - x_0\| \leq \|x_1\| + \|x_0\|$，在動作空間有界時保持有界。 ∎
+(c) 由 (b)，$\|v^{OT}\| = \|x_0 - x_1\| \leq \|x_1\| + \|x_0\|$，在動作空間有界時保持有界。 ∎
 
 ### 5.1 幾何視角：最短路徑
 
@@ -570,13 +574,13 @@ OT 提供最短的歐氏路徑，減少：
 **Velocity 複雜度比較**：
 
 ```
-OT:     v = x₁ - x₀                    ← 常數，最簡單
+OT:     v = x₀ - x₁                    ← 常數，最簡單
 VP:     v(t) = f(t)·x₁ + g(t)·x₀       ← 時變函數
 Cosine: v(t) = 複雜的時變函數            ← 更複雜
 VE:     v(t) = 爆炸                     ← 無法學習
 ```
 
-OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
+OT 的 velocity 與時間 t 無關，網路只需學習 $x_0 - x_1 = \epsilon - x_1$ 的映射。
 
 ### 5.3 訓練穩定性視角
 
@@ -605,7 +609,7 @@ OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
 2. **環境覆蓋**：僅測試 MuJoCo 環境，未驗證 Atari 等離散任務
 3. **VE 參數**：僅測試 σ_max=80，未嘗試較小值
 4. **計算成本**：未比較不同 schedules 的訓練/推理時間
-6. **Loss Function 差異**：OT 使用 eps prediction（原始 FPO），VP/Cosine 使用 velocity matching。這是各自最佳實踐，但可能影響公平比較。更嚴謹的研究應使用統一的 loss function 進行消融實驗
+5. **Loss Function 差異**：OT 使用 eps prediction（原始 FPO），VP/Cosine 使用 velocity matching。這是各自最佳實踐，但可能影響公平比較。更嚴謹的研究應使用統一的 loss function 進行消融實驗
 
 ### 6.2 建議的 Ablation Studies
 
@@ -763,10 +767,12 @@ Software:
 ```python
 def get_flow_coefficients(t, flow_type, sigma_min=0.01, sigma_max=80.0):
     if flow_type == "ot":
-        alpha_t = t
-        sigma_t = 1 - t
-        d_alpha_dt = jnp.ones_like(t)
-        d_sigma_dt = -jnp.ones_like(t)
+        # x_t = (1-t) * x_1 + t * x_0，其中 x_1=data, x_0=noise
+        # 即 alpha_t = 1-t, sigma_t = t
+        alpha_t = 1.0 - t
+        sigma_t = t
+        d_alpha_dt = -jnp.ones_like(t)
+        d_sigma_dt = jnp.ones_like(t)
 
     elif flow_type == "vp":
         alpha_t = jnp.cos(jnp.pi * t / 2)

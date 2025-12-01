@@ -404,7 +404,7 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 - PPO 的 unimodal Gaussian 會導致「模態平均」問題
 - 這解釋了為何 FPO 在 Getup 類任務（也可能有多種起立方式）中優於 PPO
 
-#### 3.2.4 HumanoidGetup 詳細分析
+#### 3.3.6 HumanoidGetup 詳細分析
 
 ![FPO vs PPO Comparison](plots_analysis/fpo_vs_ppo_training_comparison.png)
 
@@ -423,7 +423,7 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 
 **圖 5**：FPO vs PPO 詳細分析（含 error bars、穩定性指標）— 早期訓練階段
 
-#### 3.2.5 結論
+#### 3.3.7 結論
 
 1. **FPO 並非在所有任務上都優於 PPO** — 這是重要的實證發現
 2. **任務類型決定算法適用性**：

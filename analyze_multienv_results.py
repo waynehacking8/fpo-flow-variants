@@ -5,6 +5,7 @@ Generates comparison plots for FPO flow variants across multiple environments:
 - HumanoidGetup (humanoid)
 - Go1 Getup (quadruped getup)
 - Go1 Joystick (quadruped locomotion)
+- Go1 Handstand (quadruped multimodal task)
 """
 
 import json
@@ -16,6 +17,7 @@ import numpy as np
 humanoid_results = {}
 go1_getup_results = {}
 go1_joystick_results = {}
+go1_handstand_results = {}
 
 multienv_dir = "./results_multienv"
 for filename in os.listdir(multienv_dir):
@@ -30,11 +32,14 @@ for filename in os.listdir(multienv_dir):
                 go1_getup_results[flow_type] = data
             elif env_name == "go1_joystick":
                 go1_joystick_results[flow_type] = data
+            elif env_name == "go1_handstand":
+                go1_handstand_results[flow_type] = data
 
 print("Loaded results:")
 print(f"  HumanoidGetup: {list(humanoid_results.keys())}")
 print(f"  Go1 Getup: {list(go1_getup_results.keys())}")
 print(f"  Go1 Joystick: {list(go1_joystick_results.keys())}")
+print(f"  Go1 Handstand: {list(go1_handstand_results.keys())}")
 
 # Collect final performance data
 def get_final_reward(results):
@@ -67,12 +72,14 @@ flow_labels = {
 }
 
 # Figure 1: Final Performance Comparison (Bar Chart)
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes = axes.flatten()
 
 envs = [
     ("HumanoidGetup", humanoid_results),
     ("Go1 Getup", go1_getup_results),
-    ("Go1 Joystick", go1_joystick_results)
+    ("Go1 Joystick", go1_joystick_results),
+    ("Go1 Handstand", go1_handstand_results)
 ]
 flow_types = ["ot", "vp", "cosine"]  # Exclude VE as it fails
 
@@ -116,8 +123,9 @@ plt.savefig("./plots_multienv/final_performance_comparison.png", dpi=150, bbox_i
 plt.close()
 print("Saved: ./plots_multienv/final_performance_comparison.png")
 
-# Figure 2: Training Curves (3 subplots)
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+# Figure 2: Training Curves (4 subplots)
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes = axes.flatten()
 
 for idx, (env_name, results) in enumerate(envs):
     ax = axes[idx]
@@ -148,9 +156,9 @@ plt.close()
 print("Saved: ./plots_multienv/training_curves_comparison.png")
 
 # Figure 3: Normalized Performance (relative to OT baseline)
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 
-env_labels = ["HumanoidGetup", "Go1 Getup", "Go1 Joystick"]
+env_labels = ["HumanoidGetup", "Go1 Getup", "Go1 Joystick", "Go1 Handstand"]
 x = np.arange(len(env_labels))
 width = 0.25
 
@@ -186,9 +194,9 @@ plt.close()
 print("Saved: ./plots_multienv/normalized_performance.png")
 
 # Figure 4: Summary Heatmap
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(10, 6))
 
-env_names_short = ["HumanoidGetup", "Go1 Getup", "Go1 Joystick"]
+env_names_short = ["HumanoidGetup", "Go1 Getup", "Go1 Joystick", "Go1 Handstand"]
 flow_names = ["OT", "VP", "Cosine"]
 
 # Create data matrix (normalized to max in each env)

@@ -12,7 +12,7 @@
 
 ## 摘要 (Abstract)
 
-本研究探討 Flow Policy Optimization (FPO) 中不同 Flow Schedule 的效果比較。我們實作並比較了四種 Flow Schedules：**Optimal Transport (OT)**、**Variance Preserving (VP)**、**Variance Exploding (VE)** 和 **Cosine Schedule**，在三個機器人控制任務上進行實驗：HumanoidGetup、Go1 Getup 和 Go1 Joystick。
+本研究探討 Flow Policy Optimization (FPO) 中不同 Flow Schedule 的效果比較。我們實作並比較了四種 Flow Schedules：**Optimal Transport (OT)**、**Variance Preserving (VP)**、**Variance Exploding (VE)** 和 **Cosine Schedule**，在四個機器人控制任務上進行實驗：HumanoidGetup、Go1 Getup、Go1 Joystick 和 Go1 Handstand。
 
 **主要貢獻**：
 1. **首次系統性比較**不同 Flow Schedules 在強化學習中的表現
@@ -33,10 +33,10 @@
 | **FPO vs PPO (Getup 任務)** | FPO 優勢 +24.7% ~ +46.3% |
 | **FPO vs PPO (Handstand 多模態)** | FPO 優勢 **+87.6%** |
 | **FPO vs PPO (Joystick 任務)** | PPO 優勢 +285% |
-| **OT vs VP 提升** | +2.3% ~ +111% (視環境) |
+| **OT vs VP 提升** | +2.3% ~ +183% (視環境) |
 | **VE 成功率** | 0% (設計不兼容) |
 | **Multi-seed 驗證** | Cohen's d > 1.0 (large effect) |
-| **總實驗數** | 18+ runs (3 環境 × 4 schedules + PPO baselines) |
+| **總實驗數** | 22+ runs (4 環境 × 4 schedules + PPO baselines) |
 
 ```
 主要發現一句話總結：
@@ -158,6 +158,7 @@ $$x_{t-\Delta t} = x_t + \Delta t \cdot v_\theta(x_t, t)$$
 | HumanoidGetup | 人形機器人從地面起立 | 292 | 21 | 1000 |
 | Go1 Getup | 四足機器人從仰躺起立 | 48 | 12 | 1000 |
 | Go1 Joystick | 四足機器人速度追蹤 | 51 | 12 | 1000 |
+| Go1 Handstand | 四足機器人翻身倒立（多模態） | 48 | 12 | 1000 |
 
 ### 2.4 訓練配置
 
@@ -678,13 +679,14 @@ OT 的 velocity 與時間 t 無關，網路只需學習 $x_1 - x_0$ 的映射。
 ### 7.1 主要發現
 
 1. **OT 是 FPO 的最佳 Flow Schedule**
-   - 在所有 3 個環境中性能最佳
+   - 在所有 4 個環境中性能最佳
    - 理論上具有最短路徑、常數 velocity 的優勢
    - 訓練最穩定
+   - 在多模態任務（Go1 Handstand）中優勢最顯著：+183% vs VP
 
 2. **VP 和 Cosine 可用但次優**
-   - 性能低於 OT 約 2-50%（視環境而定）
-   - 在 HumanoidGetup 中差異較小，但在 Go1 環境中差異顯著
+   - 性能低於 OT 約 2-183%（視環境而定）
+   - 在 HumanoidGetup 中差異較小，但在 Go1 Handstand 等多模態環境中差異顯著
 
 3. **VE 完全不適用於 RL**
    - 100% 失敗率（所有環境產生 NaN）
@@ -762,6 +764,7 @@ Software:
 | HumanoidGetup | 10M | ~3.5 分鐘 |
 | Go1 Getup | 3M | ~1.5 分鐘 |
 | Go1 Joystick | 3M | ~1.5 分鐘 |
+| Go1 Handstand | 3M | ~1.5 分鐘 |
 
 ---
 
@@ -850,6 +853,13 @@ def get_flow_coefficients(t, flow_type, sigma_min=0.01, sigma_max=80.0):
 **Go1 Joystick**：
 - 目標：追蹤指定的線速度和角速度
 - 獎勵：速度追蹤誤差的負值
+
+**Go1 Handstand**：
+- 宇樹 Go1 四足機器人
+- 目標：從仰躺姿態翻身至倒立（前腳著地）
+- **多模態特性**：可向左或向右翻轉，兩種方式均為最優解
+- 獎勵：倒立姿態穩定性 + 低能量消耗
+- **FPO 優勢場景**：Flow-based policy 可表達雙峰動作分布，而 PPO 的高斯策略會平均兩個模態
 
 ---
 

@@ -234,7 +234,7 @@ FpoConfig(
 
 ![Final Performance Comparison](plots_multienv/final_performance_comparison.png)
 
-**圖 1**：三個環境中 OT、VP、Cosine 的最終性能比較。誤差棒表示評估時的標準差。VE 因完全失敗未顯示。
+**圖 1**：四個環境中 OT、VP、Cosine 的最終性能比較。誤差棒表示評估時的標準差。VE 因完全失敗未顯示。
 
 **表 1：最終性能數值（Episode Return）**
 
@@ -243,17 +243,19 @@ FpoConfig(
 | HumanoidGetup | **4201.94** | 4105.79 | 4116.02 | NaN | +2.3% vs VP |
 | Go1 Getup | **18.29** | 8.67 | 10.03 | NaN | +111% vs VP |
 | Go1 Joystick | **4.39** | 4.00 | 3.51 | NaN | +10% vs VP |
+| Go1 Handstand | **3.34** | 1.18 | 1.37 | NaN | +183% vs VP |
 
 **關鍵發現**：
-- OT 在**所有環境**中取得最佳性能
-- Go1 Getup 差異最大：OT 比 VP 高出 111%
+- OT 在**所有 4 個環境**中取得最佳性能
+- Go1 Handstand 差異最大：OT 比 VP 高出 183%（多模態任務優勢）
+- Go1 Getup 差異顯著：OT 比 VP 高出 111%
 - VE 在所有環境中**完全失敗**（產生 NaN）
 
 #### 3.1.2 訓練曲線
 
 ![Training Curves](plots_multienv/training_curves_comparison.png)
 
-**圖 2**：訓練過程中的學習曲線。OT 展現：(1) 更快的初始學習，(2) 更高的最終性能，(3) 更穩定的收斂。
+**圖 2**：四個環境訓練過程中的學習曲線。OT 展現：(1) 更快的初始學習，(2) 更高的最終性能，(3) 更穩定的收斂。Go1 Handstand 顯示 OT 在多模態任務中的顯著優勢。
 
 #### 3.1.3 相對性能熱力圖
 
@@ -264,7 +266,8 @@ FpoConfig(
 **觀察**：
 - HumanoidGetup：三者接近（VP 98%, Cosine 98%）
 - Go1 Getup：**差異巨大**（VP 僅 47%, Cosine 55%）
-- Go1 Joystick：中等差異（VP 80%, Cosine 80%）
+- Go1 Joystick：中等差異（VP 91%, Cosine 80%）
+- Go1 Handstand：**差異最大**（VP 僅 35%, Cosine 41%）— 多模態任務特性使 OT 優勢更明顯
 
 ### 3.2 統計顯著性分析（Multi-Seed）
 

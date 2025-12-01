@@ -1,0 +1,58 @@
+{
+  "env_name": "go1_getup",
+  "flow_type": "cosine",
+  "seed": 0,
+  "eval_results": [
+    {
+      "step": 0,
+      "reward_mean": 0.043893370777368546,
+      "reward_std": 0.08269399404525757
+    },
+    {
+      "step": 1,
+      "reward_mean": 0.09439542889595032,
+      "reward_std": 0.15258286893367767
+    },
+    {
+      "step": 2,
+      "reward_mean": 0.25285983085632324,
+      "reward_std": 0.3248414099216461
+    },
+    {
+      "step": 3,
+      "reward_mean": 0.6181067228317261,
+      "reward_std": 0.5424655079841614
+    },
+    {
+      "step": 4,
+      "reward_mean": 1.0749964714050293,
+      "reward_std": 0.8825269937515259
+    },
+    {
+      "step": 5,
+      "reward_mean": 2.0161781311035156,
+      "reward_std": 1.2395368814468384
+    },
+    {
+      "step": 6,
+      "reward_mean": 3.0949130058288574,
+      "reward_std": 2.0529654026031494
+    },
+    {
+      "step": 7,
+      "reward_mean": 5.038829803466797,
+      "reward_std": 2.9986164569854736
+    },
+    {
+      "step": 8,
+      "reward_mean": 6.59385347366333,
+      "reward_std": 4.393950462341309
+    },
+    {
+      "step": 9,
+      "reward_mean": 10.026697158813477,
+      "reward_std": 4.886283874511719
+    }
+  ],
+  "total_time": 309.6663520336151
+}

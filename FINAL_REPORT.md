@@ -115,14 +115,36 @@ $$\alpha_t = \cos^2(\pi t/2), \quad \sigma_t = \sqrt{1-\alpha_t^2}$$
 
 ### 2.2 實作細節
 
-**Velocity Target**：網路預測 velocity field
-$$v_t^{target} = \frac{d\alpha_t}{dt} \cdot x_1 + \frac{d\sigma_t}{dt} \cdot x_0$$
+**重要說明：Loss Function 的差異**
 
-**Loss Function**：
-$$\mathcal{L} = \mathbb{E}_{t \sim U[0,1], x_0, x_1} \left[ \| v_\theta(x_t, t) - v_t^{target} \|^2 \right]$$
+為確保公平比較，我們對不同 schedule 採用其最佳實踐的 loss function：
 
-**OT 特例**：原始 FPO 使用不同的參數化
-$$v^{OT} = x_1 - x_0 \quad \text{(常數，與 t 無關)}$$
+| Schedule | Loss Function | 說明 |
+|----------|--------------|------|
+| **OT** | $\|\epsilon - \hat{x}_1\|^2$ (eps prediction) | 原始 FPO 官方實現 |
+| **VP/Cosine** | $\|v_\theta - v_t^{target}\|^2$ (velocity matching) | 標準 Flow Matching |
+
+**OT (原始 FPO)**：
+```python
+# 網路預測 velocity = eps - action
+x0_pred = x_t - t * velocity_pred
+x1_pred = x0_pred + velocity_pred
+loss = ||eps - x1_pred||²  # 預測噪聲
+```
+
+**VP/Cosine (Velocity Matching)**：
+```python
+velocity_target = d_alpha_dt * action + d_sigma_dt * eps
+loss = ||network_pred - velocity_target||²  # 預測速度場
+```
+
+**採樣過程**：所有 schedule 使用相同的 Euler 積分
+$$x_{t-\Delta t} = x_t + \Delta t \cdot v_\theta(x_t, t)$$
+
+這種設計選擇是合理的，因為：
+1. OT 使用其經過驗證的官方實現
+2. VP/Cosine 使用標準的 velocity matching 框架
+3. 所有 schedule 的採樣過程一致，皆為 Euler 積分
 
 ### 2.3 實驗環境
 

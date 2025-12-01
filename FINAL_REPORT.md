@@ -64,7 +64,9 @@ Flow Policy Optimization (FPO) 是近期提出的強化學習算法，使用 Flo
 
 Flow Matching 學習一個連續時間的變換，將簡單分布（噪聲）映射到複雜分布（數據）：
 
-$$\frac{dx_t}{dt} = v_t(x_t), \quad x_0 \sim \mathcal{N}(0, I), \quad x_1 \sim p_{data}$$
+```
+dx_t/dt = v_t(x_t),  x₀ ~ N(0, I),  x₁ ~ p_data
+```
 
 **與 Diffusion Models 的關係**：
 - Diffusion: 學習 score function ∇ₓ log p_t(x)
@@ -74,7 +76,9 @@ $$\frac{dx_t}{dt} = v_t(x_t), \quad x_0 \sim \mathcal{N}(0, I), \quad x_1 \sim p
 ### 1.3 Flow Schedule 的重要性
 
 Flow schedule 定義了插值路徑：
-$$x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$$
+```
+x_t = α_t · x₁ + σ_t · x₀
+```
 
 不同 schedule 會影響：
 - **學習難度**：velocity field 的複雜度
@@ -90,28 +94,36 @@ $$x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$$
 我們比較以下四種來自不同領域的 schedules：
 
 #### 2.1.1 Optimal Transport (OT) — FPO 原始選擇
-$$\alpha_t = 1 - t, \quad \sigma_t = t$$
+```
+α_t = 1 - t,  σ_t = t
+```
 
 - **來源**：Flow Matching (Lipman et al., 2022)
 - **特點**：線性插值 x_t = (1-t)·x₁ + t·ε，velocity 為常數 v = ε - x₁
 - **優勢**：最簡單、最短路徑
 
 #### 2.1.2 Variance Preserving (VP)
-$$\alpha_t = \cos(\pi t/2), \quad \sigma_t = \sin(\pi t/2)$$
+```
+α_t = cos(πt/2),  σ_t = sin(πt/2)
+```
 
 - **來源**：DDPM (Ho et al., 2020)
 - **特點**：α_t² + σ_t² = 1，總變異數恆定
 - **用途**：圖像生成的主流選擇
 
 #### 2.1.3 Variance Exploding (VE)
-$$\alpha_t = 1, \quad \sigma_t = \sigma_{min} \cdot (\sigma_{max}/\sigma_{min})^t$$
+```
+α_t = 1,  σ_t = σ_min · (σ_max/σ_min)^t
+```
 
 - **來源**：Score SDE (Song et al., 2021)
 - **特點**：數據固定，噪聲指數增長
 - **參數**：σ_min=0.01, σ_max=80
 
 #### 2.1.4 Cosine Schedule
-$$\alpha_t = \cos^2(\pi t/2), \quad \sigma_t = \sqrt{1-\alpha_t^2}$$
+```
+α_t = cos²(πt/2),  σ_t = √(1-α_t²)
+```
 
 - **來源**：Improved DDPM (Nichol & Dhariwal, 2021)
 - **特點**：更平滑的 SNR 變化曲線
@@ -142,7 +154,9 @@ loss = ||network_pred - velocity_target||²  # 預測速度場
 ```
 
 **採樣過程**：所有 schedule 使用相同的 Euler 積分
-$$x_{t-\Delta t} = x_t + \Delta t \cdot v_\theta(x_t, t)$$
+```
+x_{t-Δt} = x_t + Δt · v_θ(x_t, t)
+```
 
 這種設計選擇是合理的，因為：
 1. OT 使用其經過驗證的官方實現
@@ -462,11 +476,11 @@ Go1 Handstand 實驗提供了 FPO 優勢的**最清晰證據**：
 #### 4.2.2 失敗機制
 
 1. **Velocity Target 爆炸**
-   $$v_t = \frac{d\sigma_t}{dt} \cdot \epsilon = 718.97 \cdot \epsilon$$
+   `v_t = (dσ_t/dt) · ε = 718.97 · ε`
    當 ε ~ N(0,1) 時，velocity 達到數百量級
 
 2. **Loss 爆炸**
-   $$\mathcal{L} \propto \|v_{pred} - v_{target}\|^2$$
+   `L ∝ ‖v_pred - v_target‖²`
    巨大的 target 導致 loss 爆炸
 
 3. **梯度爆炸 → NaN**
@@ -504,7 +518,8 @@ VE 的 SNR 在 t=1 時僅有 1/80，信號完全被噪聲淹沒。
 > **推論 1 (VE 不可行條件)**：對於 Variance Exploding schedule，若 σ_max > O(‖x₁‖_max)，則 velocity target v_t = (dσ_t/dt)·ε 在 t → 1 時發散，導致訓練失敗。
 >
 > 具體而言，當 σ_max = 80，‖x₁‖ ≤ 1（正規化動作空間）時：
-> $$\frac{d\sigma_t}{dt}\bigg|_{t=1} = \sigma_{max} \ln\left(\frac{\sigma_{max}}{\sigma_{min}}\right) \approx 718.97$$
+>
+> `(dσ_t/dt)|_{t=1} = σ_max · ln(σ_max/σ_min) ≈ 718.97`
 >
 > 此梯度量級遠超有界動作空間，必然導致數值溢出。
 

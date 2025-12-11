@@ -21,6 +21,10 @@
 % Theme & Colors
 %-----------------------------------------------------------
 \usetheme{Default}
+\useblockstyle{Basic}
+
+% Reduce block spacing
+\tikzposterlatexaffectionproofoff
 
 \definecolor{neuripsblue}{RGB}{0, 51, 102}
 \definecolor{neuripsred}{RGB}{180, 50, 50}
@@ -85,15 +89,13 @@
         \item Cosine -- Improved DDPM
     \end{itemize}
 
-    \vspace{0.5cm}
+    \vspace{0.3cm}
 
     \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{
-        \textbf{Research Questions:}
-        \begin{enumerate}[leftmargin=*]
-            \item Which flow schedule works best for RL?
-            \item When does FPO outperform PPO?
-            \item Why does FPO fail on imitation tasks?
-        \end{enumerate}
+        \textbf{Research Questions:}\\
+        1. Which flow schedule works best for RL?\\
+        2. When does FPO outperform PPO?\\
+        3. Why does FPO fail on imitation tasks?
     }
 }
 
@@ -103,9 +105,9 @@
 \block{2. Flow Schedules Compared}{
     Flow matching: $x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$
 
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
-    \renewcommand{\arraystretch}{1.6}
+    \renewcommand{\arraystretch}{1.4}
     \begin{tabular}{lll}
     \toprule
     \textbf{Schedule} & \textbf{Coefficients} & \textbf{Velocity} \\
@@ -117,20 +119,20 @@
     \bottomrule
     \end{tabular}
 
-    \vspace{0.5cm}
+    \vspace{0.2cm}
 
-    \textbf{OT Advantage:} Constant velocity $v = x_1 - x_0$ makes regression simpler.
+    \textbf{OT Advantage:} Constant velocity $v = x_1 - x_0$
 }
 
 %-----------------------------------------------------------
 % Experimental Setup
 %-----------------------------------------------------------
 \block{3. Experimental Setup}{
-    \textbf{4 Robot Control Tasks} (MJX/Brax):
+    \textbf{4 Robot Tasks} (MJX/Brax) + \textbf{SkillMimic} (IsaacGym):
 
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
-    \renewcommand{\arraystretch}{1.4}
+    \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{lcc}
     \toprule
     \textbf{Task} & \textbf{Dim} & \textbf{Type} \\
@@ -138,41 +140,27 @@
     HumanoidGetup & 21 & Goal-directed \\
     Go1 Getup & 12 & Goal-directed \\
     Go1 Joystick & 12 & Tracking \\
-    Go1 Handstand & 12 & \textbf{Multimodal} \\
+    Go1 Handstand & 12 & Multimodal \\
+    SkillMimic & 28 & Imitation \\
     \bottomrule
     \end{tabular}
 
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
-    \textbf{Setup:} 10M steps, 2048 envs, JAX/Brax
-
-    \vspace{0.5cm}
-
-    \textbf{+ SkillMimic (IsaacGym):}
-    \begin{itemize}[leftmargin=*]
-        \item Basketball humanoid motion imitation
-        \item 69-dim observation, 28-dim action
-        \item Reference motion tracking task
-    \end{itemize}
+    \textbf{Setup:} 10M steps, 2048 parallel envs
 }
 
 %-----------------------------------------------------------
 % SNR Analysis
 %-----------------------------------------------------------
 \block{4. Theoretical Analysis: SNR}{
-    \textbf{Signal-to-Noise Ratio} determines learning difficulty:
-
-    \begin{equation*}
-    \text{SNR}(t) = \frac{\alpha_t}{\sigma_t}
-    \end{equation*}
+    Signal-to-Noise Ratio: $\text{SNR}(t) = \alpha_t / \sigma_t$
 
     \begin{center}
-    \includegraphics[width=0.95\linewidth]{figures/flow_snr_comparison.png}
+    \includegraphics[width=0.92\linewidth]{figures/flow_snr_comparison.png}
     \end{center}
 
-    \vspace{0.3cm}
-
-    \textbf{Key Insight:} VE's SNR drops to 1/80 at $t=1$, signal completely overwhelmed by noise.
+    \textbf{Key:} VE's SNR drops to 1/80 at $t=1$
 }
 
 %=========================================================
@@ -185,31 +173,26 @@
 %-----------------------------------------------------------
 \block{5. Main Results: OT Wins All Tasks}{
     \begin{center}
-    \includegraphics[width=0.95\linewidth]{figures/final_performance_comparison.png}
+    \includegraphics[width=0.92\linewidth]{figures/final_performance_comparison.png}
     \end{center}
-
-    \vspace{0.2cm}
 
     \coloredbox[bgcolor=lightgreen,framecolor=neuripsgreen]{
-        \centering\large
-        \textbf{OT outperforms VP by +2\% to +183\%}
+        \centering \textbf{OT outperforms VP by +2\% to +183\%}
     }
 
-    \vspace{0.3cm}
-
     \begin{center}
-    \includegraphics[width=0.85\linewidth]{figures/performance_heatmap.png}
+    \includegraphics[width=0.8\linewidth]{figures/performance_heatmap.png}
     \end{center}
 
-    \renewcommand{\arraystretch}{1.4}
+    \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{lccc}
     \toprule
-    \textbf{Task} & \textbf{OT} & \textbf{VP} & \textbf{Cosine} \\
+    \textbf{Task} & \textbf{OT} & \textbf{VP} & \textbf{Cos} \\
     \midrule
-    HumanoidGetup & \textbf{100\%} & 97.7\% & 98.0\% \\
-    Go1 Getup & \textbf{100\%} & 47.4\% & 54.8\% \\
-    Go1 Joystick & \textbf{100\%} & 91.1\% & 80.0\% \\
-    Go1 Handstand & \textbf{100\%} & 35.3\% & 41.0\% \\
+    HumanoidGetup & \textbf{100\%} & 98\% & 98\% \\
+    Go1 Getup & \textbf{100\%} & 47\% & 55\% \\
+    Go1 Joystick & \textbf{100\%} & 91\% & 80\% \\
+    Go1 Handstand & \textbf{100\%} & 35\% & 41\% \\
     \bottomrule
     \end{tabular}
 }
@@ -219,16 +202,13 @@
 %-----------------------------------------------------------
 \block{6. Training Dynamics}{
     \begin{center}
-    \includegraphics[width=0.95\linewidth]{figures/training_curves_comparison.png}
+    \includegraphics[width=0.92\linewidth]{figures/training_curves_comparison.png}
     \end{center}
-
-    \vspace{0.2cm}
 
     \textbf{Observations:}
     \begin{itemize}[leftmargin=*]
-        \item OT: Faster initial learning + higher final performance
-        \item VP/Cosine: Slower convergence, lower asymptotic reward
-        \item Multimodal tasks (Handstand): Largest OT advantage
+        \item OT: Faster learning + higher final reward
+        \item VP/Cosine: Slower, lower asymptotic reward
     \end{itemize}
 }
 
@@ -237,25 +217,18 @@
 %-----------------------------------------------------------
 \block{7. Why VE Fails (100\% NaN)}{
     \begin{center}
-    \includegraphics[width=0.92\linewidth]{figures/ve_failure_comprehensive.png}
+    \includegraphics[width=0.88\linewidth]{figures/ve_failure_comprehensive.png}
     \end{center}
 
-    \vspace{0.2cm}
-
-    \textbf{Gradient Explosion:}
-    \begin{equation*}
-    \frac{d\sigma}{dt}\bigg|_{t=1} = 80 \times \ln(8000) \approx \textcolor{neuripsred}{\mathbf{719}}
-    \end{equation*}
+    \textbf{Gradient Explosion:} $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$
 
     \begin{itemize}[leftmargin=*]
         \item RL actions bounded: $a \in [-1, 1]$
-        \item VE velocity magnitude: $\|v\| \approx 700$
-        \item Scale mismatch causes NaN
+        \item VE velocity: $\|v\| \approx 700$ -- Scale mismatch!
     \end{itemize}
 
     \coloredbox[bgcolor=lightred,framecolor=neuripsred]{
-        \centering
-        VE is \textbf{fundamentally incompatible} with bounded action RL
+        \centering VE is \textbf{incompatible} with bounded action RL
     }
 }
 
@@ -269,29 +242,25 @@
 %-----------------------------------------------------------
 \block{8. FPO vs PPO: Task Dependency}{
     \begin{center}
-    \includegraphics[width=0.95\linewidth]{figures/fpo_vs_ppo_summary.png}
+    \includegraphics[width=0.92\linewidth]{figures/fpo_vs_ppo_summary.png}
     \end{center}
 
-    \vspace{0.2cm}
-
-    \renewcommand{\arraystretch}{1.5}
+    \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{lrrr}
     \toprule
-    \textbf{Task} & \textbf{FPO-OT} & \textbf{PPO} & \textbf{Delta} \\
+    \textbf{Task} & \textbf{FPO} & \textbf{PPO} & \textbf{Gap} \\
     \midrule
-    HumanoidGetup & 4201.9 & 2910.0 & \textcolor{neuripsgreen}{\textbf{+44\%}} \\
-    Go1 Getup & 18.29 & 12.50 & \textcolor{neuripsgreen}{\textbf{+46\%}} \\
+    HumanoidGetup & 4202 & 2910 & \textcolor{neuripsgreen}{\textbf{+44\%}} \\
+    Go1 Getup & 18.3 & 12.5 & \textcolor{neuripsgreen}{\textbf{+46\%}} \\
     Go1 Handstand & 3.34 & 1.78 & \textcolor{neuripsgreen}{\textbf{+87\%}} \\
-    Go1 Joystick & 4.39 & 16.94 & \textcolor{neuripsred}{\textbf{-74\%}} \\
+    Go1 Joystick & 4.39 & 16.9 & \textcolor{neuripsred}{\textbf{-74\%}} \\
     \bottomrule
     \end{tabular}
 
-    \vspace{0.3cm}
-
     \coloredbox[bgcolor=lightyellow,framecolor=neuripsblue]{
         \centering
-        \textbf{Multimodal tasks:} FPO wins (+87\%)\\
-        \textbf{Unimodal tracking:} PPO wins (+285\%)
+        \textbf{Multimodal:} FPO wins (+87\%)\\
+        \textbf{Unimodal:} PPO wins (+285\%)
     }
 }
 
@@ -299,17 +268,14 @@
 % Multimodality
 %-----------------------------------------------------------
 \block{9. FPO Excels at Multimodal Tasks}{
-    \textbf{Go1 Handstand:} Flip \textcolor{blue}{\textbf{LEFT}} or \textcolor{red}{\textbf{RIGHT}} -- both valid!
+    \textbf{Go1 Handstand:} Flip LEFT or RIGHT -- both valid!
 
     \begin{center}
-    \includegraphics[width=0.95\linewidth]{figures/go1_handstand_multimodal_explanation.png}
+    \includegraphics[width=0.92\linewidth]{figures/go1_handstand_multimodal_explanation.png}
     \end{center}
 
-    \textbf{Mode-Averaging Problem:}
-    \begin{itemize}[leftmargin=*]
-        \item \textbf{PPO}: Averages modes, outputs zero, \textcolor{neuripsred}{FAILS}
-        \item \textbf{FPO}: Captures both peaks, samples valid action, \textcolor{neuripsgreen}{WINS}
-    \end{itemize}
+    \textbf{Mode-Averaging:} PPO averages modes to zero, \textcolor{neuripsred}{FAILS}\\
+    \textbf{Flow Policy:} FPO captures both peaks, \textcolor{neuripsgreen}{WINS}
 }
 
 %-----------------------------------------------------------
@@ -317,81 +283,55 @@
 %-----------------------------------------------------------
 \block{10. Why FPO Fails on SkillMimic}{
     \coloredbox[bgcolor=lightorange,framecolor=neuripsorange]{
-        \centering\textbf{Case Study: Motion Imitation Task}
+        \centering\textbf{Case Study: Motion Imitation}
     }
 
-    \vspace{0.3cm}
+    \textbf{Result:} FPO = 0.2 vs PPO = 22-24
 
-    \textbf{Task:} Basketball humanoid imitates reference motion
-
-    \textbf{Result:} FPO reward = 0.2 vs PPO reward = 22-24
-
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
     \textbf{Root Cause: Ratio Mismatch}
 
-    \renewcommand{\arraystretch}{1.5}
+    \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{ll}
     \toprule
-    \textbf{Method} & \textbf{Ratio Definition} \\
-    \midrule
-    \textbf{PPO} & $r = \frac{\pi_\text{new}(a|s)}{\pi_\text{old}(a|s)}$ \\
-    & Measures \textit{policy preference change} \\
+    \textbf{PPO} & $r = \pi_\text{new}(a|s) / \pi_\text{old}(a|s)$ \\
+    & \textit{Policy preference change} \\
     \midrule
     \textbf{FPO} & $r = \exp(\text{MSE}_\text{old} - \text{MSE}_\text{new})$ \\
-    & Measures \textit{prediction accuracy change} \\
+    & \textit{Prediction accuracy change} \\
     \bottomrule
     \end{tabular}
 
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
-    \textbf{Why This Matters:}
     \begin{itemize}[leftmargin=*]
-        \item Imitation requires \textbf{precise action matching}
-        \item FPO ratio does not reflect action likelihood
-        \item Better MSE does not mean better imitation policy
+        \item Imitation needs \textbf{precise action matching}
+        \item FPO ratio $\neq$ action likelihood
     \end{itemize}
 
     \coloredbox[bgcolor=lightorange,framecolor=neuripsorange]{
-        \centering
-        \textbf{FPO is NOT suitable for imitation learning tasks}
+        \centering \textbf{FPO unsuitable for imitation learning}
     }
 }
 
 %-----------------------------------------------------------
 % Conclusions
 %-----------------------------------------------------------
-\block{11. Conclusions and Guidelines}{
+\block{11. Conclusions}{
     \begin{enumerate}[leftmargin=*]
-        \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL
-        \begin{itemize}
-            \item Constant velocity, straight path
-            \item Best on ALL tasks tested
-        \end{itemize}
-
-        \item \textcolor{neuripsred}{\textbf{Avoid VE}} in RL
-        \begin{itemize}
-            \item Gradient explosion with bounded actions
-        \end{itemize}
-
-        \item \textbf{Choose algorithm by task type:}
-        \begin{itemize}
-            \item Multimodal: \textbf{FPO}
-            \item Unimodal tracking: \textbf{PPO}
-            \item Motion imitation: \textbf{PPO}
-        \end{itemize}
+        \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL -- best on all tasks
+        \item \textcolor{neuripsred}{\textbf{Avoid VE}} -- gradient explosion
+        \item \textbf{Choose by task:} Multimodal $\rightarrow$ FPO, Unimodal/Imitation $\rightarrow$ PPO
     \end{enumerate}
-
-    \vspace{0.3cm}
 
     \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{
         \centering\large
-        \textbf{Take-Home Message}\\[0.2cm]
+        \textbf{Take-Home Message}\\[0.1cm]
         \normalsize
         Flow schedules from image generation\\
-        \textbf{do not transfer directly} to robot learning.\\[0.2cm]
-        \textbf{OT is the gold standard for FPO.}\\[0.2cm]
-        \textbf{Task structure determines algorithm choice.}
+        \textbf{do not transfer} to robot learning.\\
+        \textbf{OT is the gold standard for FPO.}
     }
 }
 

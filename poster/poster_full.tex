@@ -69,9 +69,9 @@
 }
 \usetitlestyle{NeurIPSTitle}
 
-\title{\color{white}\textbf{Comparative Analysis of Flow Schedules in Flow Policy Optimization for Robot Learning}}
-\author{\color{white}Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao}
-\institute{\color{white}National Taiwan University, Department of CSIE}
+\title{\color{white}\large\textbf{Comparative Analysis of Flow Schedules in Flow Policy Optimization for Robot Learning}}
+\author{\color{white}\normalsize Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao}
+\institute{\color{white}\small National Taiwan University, Department of CSIE}
 
 %-----------------------------------------------------------
 % Document
@@ -283,10 +283,12 @@
     \bottomrule
     \end{tabular}
 
+    \vspace{0.2cm}
+
     \coloredbox[bgcolor=lightyellow,framecolor=neuripsblue]{
         \centering
-        \textbf{Multimodal:} FPO wins (+87\%)\\
-        \textbf{Unimodal:} PPO wins (+285\%)
+        \textbf{Multimodal tasks:} FPO wins (+87\%)\\
+        \textbf{Unimodal tracking:} PPO wins (+285\%)
     }
 }
 
@@ -294,14 +296,17 @@
 % Multimodality
 %-----------------------------------------------------------
 \block{\large 9. FPO Excels at Multimodal Tasks}{
-    \textbf{Go1 Handstand:} Flip LEFT or RIGHT -- both valid!
+    \textbf{Go1 Handstand:} Robot can flip LEFT or RIGHT -- both are optimal solutions!
 
     \begin{center}
     \includegraphics[width=0.92\linewidth]{figures/go1_handstand_multimodal_explanation.png}
     \end{center}
 
-    \textbf{Mode-Averaging:} PPO averages modes to zero, \textcolor{neuripsred}{FAILS}\\
-    \textbf{Flow Policy:} FPO captures both peaks, \textcolor{neuripsgreen}{WINS}
+    \textbf{The Mode-Averaging Problem:}
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{PPO} (Gaussian): Averages modes $\rightarrow$ zero $\rightarrow$ \textcolor{neuripsred}{FAILS}
+        \item \textbf{FPO} (Flow): Captures both peaks $\rightarrow$ \textcolor{neuripsgreen}{WINS}
+    \end{itemize}
 }
 
 %-----------------------------------------------------------
@@ -309,10 +314,12 @@
 %-----------------------------------------------------------
 \block{\large 10. Why FPO Fails on SkillMimic}{
     \coloredbox[bgcolor=lightorange,framecolor=neuripsorange]{
-        \centering\textbf{Case Study: Motion Imitation}
+        \centering\textbf{Case Study: Motion Imitation Task}
     }
 
-    \textbf{Result:} FPO = 0.2 vs PPO = 22-24
+    \textbf{Task:} Basketball humanoid imitates reference motion
+
+    \textbf{Result:} FPO reward = 0.2 vs PPO reward = 22-24
 
     \vspace{0.2cm}
 
@@ -344,11 +351,19 @@
 %-----------------------------------------------------------
 % Conclusions
 %-----------------------------------------------------------
-\block{\large 11. Conclusions}{
+\block{\large 11. Conclusions and Guidelines}{
     \begin{enumerate}[leftmargin=*]
-        \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL -- best on all tasks
-        \item \textcolor{neuripsred}{\textbf{Avoid VE}} -- gradient explosion
-        \item \textbf{Choose by task:} Multimodal $\rightarrow$ FPO, Unimodal/Imitation $\rightarrow$ PPO
+        \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL
+        \begin{itemize}
+            \item Constant velocity, straight path
+            \item Best performance on ALL tasks
+        \end{itemize}
+        \item \textcolor{neuripsred}{\textbf{Avoid VE}} in RL -- gradient explosion
+        \item \textbf{Choose algorithm by task type:}
+        \begin{itemize}
+            \item Multimodal $\rightarrow$ FPO
+            \item Unimodal/Imitation $\rightarrow$ PPO
+        \end{itemize}
     \end{enumerate}
 
     \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{

@@ -215,12 +215,14 @@
         \centering \textbf{OT outperforms VP by +2\% to +183\%}
     }
 
-    \vspace{0.3cm}
+    \vspace{0.2cm}
 
     \textbf{Normalized Performance Heatmap:}
     \begin{center}
     \includegraphics[width=0.9\linewidth]{figures/performance_heatmap.png}
     \end{center}
+
+    \textbf{Key Finding:} Largest gap in multimodal Go1 Handstand task.
 }
 
 %-----------------------------------------------------------
@@ -233,8 +235,9 @@
 
     \textbf{Observations:}
     \begin{itemize}[leftmargin=*]
-        \item OT: Faster learning + higher final reward
-        \item VP/Cosine: Slower, lower asymptotic reward
+        \item OT: Faster initial learning + higher final reward
+        \item VP/Cosine: Slower convergence, lower asymptotic reward
+        \item Multimodal tasks show largest OT advantage
     \end{itemize}
 }
 
@@ -242,19 +245,24 @@
 % VE Failure
 %-----------------------------------------------------------
 \block{\large 7. Why VE Fails (100\% NaN)}{
+    \textbf{VE produced NaN in 100\% of experiments!}
+
     \begin{center}
     \includegraphics[width=0.88\linewidth]{figures/ve_failure_comprehensive.png}
     \end{center}
 
-    \textbf{Gradient Explosion:} $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$
+    \textbf{Root Cause - Gradient Explosion:}
+    \begin{equation*}
+    \frac{d\sigma}{dt}\bigg|_{t=1} = 80 \times \ln(8000) \approx \textcolor{neuripsred}{\mathbf{719}}
+    \end{equation*}
 
     \begin{itemize}[leftmargin=*]
         \item RL actions bounded: $a \in [-1, 1]$
-        \item VE velocity: $\|v\| \approx 700$ -- Scale mismatch!
+        \item VE velocity target: $\|v\| \approx 700$ -- Scale mismatch!
     \end{itemize}
 
     \coloredbox[bgcolor=lightred,framecolor=neuripsred]{
-        \centering VE is \textbf{incompatible} with bounded action RL
+        \centering VE is \textbf{fundamentally incompatible} with bounded action RL
     }
 }
 

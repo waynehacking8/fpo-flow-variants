@@ -173,28 +173,19 @@
 %-----------------------------------------------------------
 \block{5. Main Results: OT Wins All Tasks}{
     \begin{center}
-    \includegraphics[width=0.92\linewidth]{figures/final_performance_comparison.png}
+    \includegraphics[width=0.95\linewidth]{figures/final_performance_comparison.png}
     \end{center}
 
     \coloredbox[bgcolor=lightgreen,framecolor=neuripsgreen]{
         \centering \textbf{OT outperforms VP by +2\% to +183\%}
     }
 
-    \begin{center}
-    \includegraphics[width=0.8\linewidth]{figures/performance_heatmap.png}
-    \end{center}
+    \vspace{0.3cm}
 
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{lccc}
-    \toprule
-    \textbf{Task} & \textbf{OT} & \textbf{VP} & \textbf{Cos} \\
-    \midrule
-    HumanoidGetup & \textbf{100\%} & 98\% & 98\% \\
-    Go1 Getup & \textbf{100\%} & 47\% & 55\% \\
-    Go1 Joystick & \textbf{100\%} & 91\% & 80\% \\
-    Go1 Handstand & \textbf{100\%} & 35\% & 41\% \\
-    \bottomrule
-    \end{tabular}
+    \textbf{Normalized Performance Heatmap:}
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{figures/performance_heatmap.png}
+    \end{center}
 }
 
 %-----------------------------------------------------------
@@ -202,10 +193,14 @@
 %-----------------------------------------------------------
 \block{6. Training Dynamics}{
     \begin{center}
-    \includegraphics[width=0.9\linewidth]{figures/training_curves_comparison.png}
+    \includegraphics[width=0.92\linewidth]{figures/training_curves_comparison.png}
     \end{center}
 
-    OT: Faster learning + higher final reward
+    \textbf{Observations:}
+    \begin{itemize}[leftmargin=*]
+        \item OT: Faster learning + higher final reward
+        \item VP/Cosine: Slower, lower asymptotic reward
+    \end{itemize}
 }
 
 %-----------------------------------------------------------
@@ -213,13 +208,18 @@
 %-----------------------------------------------------------
 \block{7. Why VE Fails (100\% NaN)}{
     \begin{center}
-    \includegraphics[width=0.85\linewidth]{figures/ve_failure_comprehensive.png}
+    \includegraphics[width=0.88\linewidth]{figures/ve_failure_comprehensive.png}
     \end{center}
 
-    $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$ \quad Actions: $a \in [-1, 1]$
+    \textbf{Gradient Explosion:} $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$
+
+    \begin{itemize}[leftmargin=*]
+        \item RL actions bounded: $a \in [-1, 1]$
+        \item VE velocity: $\|v\| \approx 700$ -- Scale mismatch!
+    \end{itemize}
 
     \coloredbox[bgcolor=lightred,framecolor=neuripsred]{
-        \centering VE \textbf{incompatible} with bounded action RL
+        \centering VE is \textbf{incompatible} with bounded action RL
     }
 }
 

@@ -90,7 +90,7 @@
 %-----------------------------------------------------------
 % Motivation
 %-----------------------------------------------------------
-\block{\normalsize 1. Motivation and Research Question}{
+\block{\large 1. Motivation and Research Question}{
     \textbf{Flow Policy Optimization (FPO)} replaces Gaussian policies with flow-based generative models for RL.
 
     \vspace{0.3cm}
@@ -121,7 +121,7 @@
 %-----------------------------------------------------------
 % Method
 %-----------------------------------------------------------
-\block{\normalsize 2. Flow Schedules Compared}{
+\block{\large 2. Flow Schedules Compared}{
     \textbf{Flow Matching} learns to transform noise $x_0$ into action $x_1$:
     \begin{equation*}
     x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0, \quad t \in [0, 1]
@@ -149,7 +149,7 @@
 %-----------------------------------------------------------
 % Experimental Setup
 %-----------------------------------------------------------
-\block{\normalsize 3. Experimental Setup}{
+\block{\large 3. Experimental Setup}{
     \textbf{5 Robot Control Tasks:}
 
     \vspace{0.2cm}
@@ -175,7 +175,7 @@
 %-----------------------------------------------------------
 % SNR Analysis
 %-----------------------------------------------------------
-\block{\normalsize 4. Theoretical Analysis: SNR}{
+\block{\large 4. Theoretical Analysis: SNR}{
     \textbf{Signal-to-Noise Ratio:} $\text{SNR}(t) = \alpha_t / \sigma_t$
 
     \begin{center}
@@ -193,7 +193,7 @@
 %-----------------------------------------------------------
 % Main Results
 %-----------------------------------------------------------
-\block{\normalsize 5. Main Results: OT Wins All Tasks}{
+\block{\large 5. Main Results: OT Wins All Tasks}{
     \begin{center}
     \includegraphics[width=0.95\linewidth]{figures/final_performance_comparison.png}
     \end{center}
@@ -213,7 +213,7 @@
 %-----------------------------------------------------------
 % Training Curves
 %-----------------------------------------------------------
-\block{\normalsize 6. Training Dynamics}{
+\block{\large 6. Training Dynamics}{
     \begin{center}
     \includegraphics[width=0.92\linewidth]{figures/training_curves_comparison.png}
     \end{center}
@@ -228,7 +228,7 @@
 %-----------------------------------------------------------
 % VE Failure
 %-----------------------------------------------------------
-\block{\normalsize 7. Why VE Fails (100\% NaN)}{
+\block{\large 7. Why VE Fails (100\% NaN)}{
     \begin{center}
     \includegraphics[width=0.88\linewidth]{figures/ve_failure_comprehensive.png}
     \end{center}
@@ -253,7 +253,7 @@
 %-----------------------------------------------------------
 % FPO vs PPO
 %-----------------------------------------------------------
-\block{\normalsize 8. FPO vs PPO: Task Dependency}{
+\block{\large 8. FPO vs PPO: Task Dependency}{
     \begin{center}
     \includegraphics[width=0.92\linewidth]{figures/fpo_vs_ppo_summary.png}
     \end{center}
@@ -280,7 +280,7 @@
 %-----------------------------------------------------------
 % Multimodality
 %-----------------------------------------------------------
-\block{\normalsize 9. FPO Excels at Multimodal Tasks}{
+\block{\large 9. FPO Excels at Multimodal Tasks}{
     \textbf{Go1 Handstand:} Flip LEFT or RIGHT -- both valid!
 
     \begin{center}
@@ -294,7 +294,7 @@
 %-----------------------------------------------------------
 % SkillMimic Failure Analysis
 %-----------------------------------------------------------
-\block{\normalsize 10. Why FPO Fails on SkillMimic}{
+\block{\large 10. Why FPO Fails on SkillMimic}{
     \coloredbox[bgcolor=lightorange,framecolor=neuripsorange]{
         \centering\textbf{Case Study: Motion Imitation}
     }
@@ -331,7 +331,7 @@
 %-----------------------------------------------------------
 % Conclusions
 %-----------------------------------------------------------
-\block{\normalsize 11. Conclusions}{
+\block{\large 11. Conclusions}{
     \begin{enumerate}[leftmargin=*]
         \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL -- best on all tasks
         \item \textcolor{neuripsred}{\textbf{Avoid VE}} -- gradient explosion

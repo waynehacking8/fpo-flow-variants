@@ -26,6 +26,17 @@
 % Reduce block spacing
 \tikzposterlatexaffectionproofoff
 
+% Smaller block titles
+\definetitlestyle{SmallTitle}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=1.5cm,
+    titletotopverticalspace=0mm, titletoblockverticalspace=10mm
+}{}
+\usetitlestyle{SmallTitle}
+
+% Make block titles smaller
+\usepackage{etoolbox}
+\patchcmd{\block}{\Large}{\large}{}{}
+
 \definecolor{neuripsblue}{RGB}{0, 51, 102}
 \definecolor{neuripsred}{RGB}{180, 50, 50}
 \definecolor{neuripsgreen}{RGB}{34, 139, 34}

@@ -202,14 +202,10 @@
 %-----------------------------------------------------------
 \block{6. Training Dynamics}{
     \begin{center}
-    \includegraphics[width=0.92\linewidth]{figures/training_curves_comparison.png}
+    \includegraphics[width=0.9\linewidth]{figures/training_curves_comparison.png}
     \end{center}
 
-    \textbf{Observations:}
-    \begin{itemize}[leftmargin=*]
-        \item OT: Faster learning + higher final reward
-        \item VP/Cosine: Slower, lower asymptotic reward
-    \end{itemize}
+    OT: Faster learning + higher final reward
 }
 
 %-----------------------------------------------------------
@@ -217,18 +213,13 @@
 %-----------------------------------------------------------
 \block{7. Why VE Fails (100\% NaN)}{
     \begin{center}
-    \includegraphics[width=0.88\linewidth]{figures/ve_failure_comprehensive.png}
+    \includegraphics[width=0.85\linewidth]{figures/ve_failure_comprehensive.png}
     \end{center}
 
-    \textbf{Gradient Explosion:} $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$
-
-    \begin{itemize}[leftmargin=*]
-        \item RL actions bounded: $a \in [-1, 1]$
-        \item VE velocity: $\|v\| \approx 700$ -- Scale mismatch!
-    \end{itemize}
+    $\frac{d\sigma}{dt}|_{t=1} \approx \textcolor{neuripsred}{\mathbf{719}}$ \quad Actions: $a \in [-1, 1]$
 
     \coloredbox[bgcolor=lightred,framecolor=neuripsred]{
-        \centering VE is \textbf{incompatible} with bounded action RL
+        \centering VE \textbf{incompatible} with bounded action RL
     }
 }
 

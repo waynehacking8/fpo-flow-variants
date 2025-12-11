@@ -77,19 +77,28 @@
 % Motivation
 %-----------------------------------------------------------
 \block{1. Motivation and Research Question}{
-    \textbf{Flow Policy Optimization (FPO)} replaces Gaussian policies with flow-based generative models for RL.
+    \textbf{Flow Policy Optimization (FPO)} replaces Gaussian policies with flow-based generative models for reinforcement learning.
 
-    \vspace{0.5cm}
+    \vspace{0.4cm}
 
-    \textbf{Problem:} Original FPO uses Optimal Transport (OT) schedule, but \textcolor{neuripsred}{\textbf{never compared}} with other schedules:
-
+    \textbf{Why Flow-based Policy?}
     \begin{itemize}[leftmargin=*]
-        \item Variance Preserving (VP) -- DDPM
-        \item Variance Exploding (VE) -- Score SDE
-        \item Cosine -- Improved DDPM
+        \item Can represent \textbf{multimodal} action distributions
+        \item More expressive than unimodal Gaussian (PPO)
+        \item Leverages advances in generative modeling
     \end{itemize}
 
-    \vspace{0.3cm}
+    \vspace{0.4cm}
+
+    \textbf{The Problem:} Original FPO uses Optimal Transport (OT) schedule, but \textcolor{neuripsred}{\textbf{never compared}} with other schedules from generative modeling:
+
+    \begin{itemize}[leftmargin=*]
+        \item Variance Preserving (VP) -- from DDPM
+        \item Variance Exploding (VE) -- from Score SDE
+        \item Cosine -- from Improved DDPM
+    \end{itemize}
+
+    \vspace{0.4cm}
 
     \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{
         \textbf{Research Questions:}\\
@@ -103,11 +112,14 @@
 % Method
 %-----------------------------------------------------------
 \block{2. Flow Schedules Compared}{
-    Flow matching: $x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$
+    \textbf{Flow Matching} learns to transform noise $x_0$ into action $x_1$:
+    \begin{equation*}
+    x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0, \quad t \in [0, 1]
+    \end{equation*}
 
-    \vspace{0.2cm}
+    \vspace{0.3cm}
 
-    \renewcommand{\arraystretch}{1.4}
+    \renewcommand{\arraystretch}{1.5}
     \begin{tabular}{lll}
     \toprule
     \textbf{Schedule} & \textbf{Coefficients} & \textbf{Velocity} \\
@@ -119,48 +131,60 @@
     \bottomrule
     \end{tabular}
 
-    \vspace{0.2cm}
+    \vspace{0.3cm}
 
-    \textbf{OT Advantage:} Constant velocity $v = x_1 - x_0$
+    \textbf{Key Insight:} OT has \textcolor{neuripsgreen}{\textbf{constant}} velocity target $v = x_1 - x_0$, while others have \textbf{time-varying} targets that are harder to learn.
 }
 
 %-----------------------------------------------------------
 % Experimental Setup
 %-----------------------------------------------------------
 \block{3. Experimental Setup}{
-    \textbf{4 Robot Tasks} (MJX/Brax) + \textbf{SkillMimic} (IsaacGym):
+    \textbf{5 Robot Control Tasks:}
 
     \vspace{0.2cm}
 
-    \renewcommand{\arraystretch}{1.3}
-    \begin{tabular}{lcc}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{lccc}
     \toprule
-    \textbf{Task} & \textbf{Dim} & \textbf{Type} \\
+    \textbf{Task} & \textbf{Dim} & \textbf{Type} & \textbf{Platform} \\
     \midrule
-    HumanoidGetup & 21 & Goal-directed \\
-    Go1 Getup & 12 & Goal-directed \\
-    Go1 Joystick & 12 & Tracking \\
-    Go1 Handstand & 12 & Multimodal \\
-    SkillMimic & 28 & Imitation \\
+    HumanoidGetup & 21 & Goal & MJX \\
+    Go1 Getup & 12 & Goal & Brax \\
+    Go1 Joystick & 12 & Tracking & Brax \\
+    Go1 Handstand & 12 & Multimodal & Brax \\
+    SkillMimic & 28 & Imitation & IsaacGym \\
     \bottomrule
     \end{tabular}
 
-    \vspace{0.2cm}
+    \vspace{0.3cm}
 
-    \textbf{Setup:} 10M steps, 2048 parallel envs
+    \textbf{Training Configuration:}
+    \begin{itemize}[leftmargin=*]
+        \item 10M environment steps
+        \item 2048 parallel environments
+        \item Framework: JAX / Brax / MJX / IsaacGym
+    \end{itemize}
 }
 
 %-----------------------------------------------------------
 % SNR Analysis
 %-----------------------------------------------------------
 \block{4. Theoretical Analysis: SNR}{
-    Signal-to-Noise Ratio: $\text{SNR}(t) = \alpha_t / \sigma_t$
+    \textbf{Signal-to-Noise Ratio} determines learning difficulty:
+    \begin{equation*}
+    \text{SNR}(t) = \frac{\alpha_t}{\sigma_t} = \frac{\text{signal strength}}{\text{noise strength}}
+    \end{equation*}
 
     \begin{center}
-    \includegraphics[width=0.92\linewidth]{figures/flow_snr_comparison.png}
+    \includegraphics[width=0.95\linewidth]{figures/flow_snr_comparison.png}
     \end{center}
 
-    \textbf{Key:} VE's SNR drops to 1/80 at $t=1$
+    \textbf{Key Observations:}
+    \begin{itemize}[leftmargin=*]
+        \item OT/VP/Cosine: SNR decreases smoothly
+        \item VE: SNR drops to \textbf{1/80} at $t=1$ -- signal overwhelmed by noise!
+    \end{itemize}
 }
 
 %=========================================================

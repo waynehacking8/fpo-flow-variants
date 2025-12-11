@@ -1,0 +1,280 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Simple NeurIPS-style Poster
+% A0 Portrait (841mm x 1189mm)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a0paper,portrait]{tikzposter}
+
+%-----------------------------------------------------------
+% Packages
+%-----------------------------------------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+%-----------------------------------------------------------
+% Theme & Colors
+%-----------------------------------------------------------
+\usetheme{Default}
+\usecolorstyle{Denmark}
+
+\definecolor{neuripsblue}{RGB}{0, 51, 102}
+\definecolor{neuripsred}{RGB}{180, 50, 50}
+\definecolor{neuripsgreen}{RGB}{34, 139, 34}
+\definecolor{lightyellow}{RGB}{255, 250, 230}
+\definecolor{lightgreen}{RGB}{230, 250, 230}
+\definecolor{lightred}{RGB}{255, 235, 235}
+\definecolor{lightblue}{RGB}{230, 240, 250}
+
+\definecolorstyle{NeurIPS}{
+    \definecolor{colorOne}{RGB}{0, 51, 102}
+    \definecolor{colorTwo}{RGB}{200, 200, 200}
+    \definecolor{colorThree}{RGB}{255, 255, 255}
+}{
+    \colorlet{backgroundcolor}{white}
+    \colorlet{framecolor}{colorOne}
+    \colorlet{titlefgcolor}{white}
+    \colorlet{titlebgcolor}{colorOne}
+    \colorlet{blocktitlebgcolor}{colorOne}
+    \colorlet{blocktitlefgcolor}{white}
+    \colorlet{blockbodybgcolor}{white}
+    \colorlet{blockbodyfgcolor}{black}
+}
+\usecolorstyle{NeurIPS}
+
+%-----------------------------------------------------------
+% Title
+%-----------------------------------------------------------
+\title{\textbf{Comparative Analysis of Flow Schedules in\\Flow Policy Optimization for Robot Learning}}
+\author{Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao}
+\institute{National Taiwan University}
+
+%-----------------------------------------------------------
+% Document
+%-----------------------------------------------------------
+\begin{document}
+\maketitle
+
+\begin{columns}
+
+%=========================================================
+% LEFT COLUMN
+%=========================================================
+\column{0.33}
+
+%-----------------------------------------------------------
+% Motivation
+%-----------------------------------------------------------
+\block{1. Motivation \& Research Question}{
+    \textbf{Flow Policy Optimization (FPO)} replaces Gaussian policies with flow-based generative models.
+
+    \vspace{0.5cm}
+
+    \textbf{Problem:} Original FPO uses Optimal Transport (OT) schedule, but \textcolor{neuripsred}{\textbf{never compared}} with others:
+    \begin{itemize}[leftmargin=*]
+        \item Variance Preserving (VP) -- DDPM
+        \item Variance Exploding (VE) -- Score SDE
+        \item Cosine -- Improved DDPM
+    \end{itemize}
+
+    \vspace{0.5cm}
+
+    \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{
+        \centering\Large\textbf{Research Question}\\[0.3cm]
+        \large Which flow schedule works best for RL?
+    }
+}
+
+%-----------------------------------------------------------
+% Method
+%-----------------------------------------------------------
+\block{2. Flow Schedules Compared}{
+    Flow matching: $x_t = \alpha_t \cdot x_1 + \sigma_t \cdot x_0$
+
+    \vspace{0.5cm}
+
+    \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Schedule} & \textbf{Path} & \textbf{Velocity} \\
+    \midrule
+    \rowcolor{lightgreen}
+    \textbf{OT} & Straight & \textbf{Constant} \\
+    VP & Curved & Time-varying \\
+    Cosine & Curved & Time-varying \\
+    \rowcolor{lightred}
+    VE & Explosive & \textbf{Explodes!} \\
+    \bottomrule
+    \end{tabular}
+
+    \vspace{0.5cm}
+
+    \textbf{OT Advantage:} Constant velocity $v = x_1 - x_0$
+}
+
+%-----------------------------------------------------------
+% Environments
+%-----------------------------------------------------------
+\block{3. Experimental Setup}{
+    \textbf{4 Robot Control Tasks:}
+
+    \vspace{0.3cm}
+
+    \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Task} & \textbf{Dim} & \textbf{Type} \\
+    \midrule
+    HumanoidGetup & 21 & Goal \\
+    Go1 Getup & 12 & Goal \\
+    Go1 Joystick & 12 & Tracking \\
+    \rowcolor{lightyellow}
+    Go1 Handstand & 12 & \textbf{Multimodal} \\
+    \bottomrule
+    \end{tabular}
+
+    \vspace{0.3cm}
+
+    \textbf{Setup:} 10M steps, 2048 envs, JAX/Brax
+}
+
+%=========================================================
+% MIDDLE COLUMN
+%=========================================================
+\column{0.34}
+
+%-----------------------------------------------------------
+% Main Results
+%-----------------------------------------------------------
+\block{4. Main Results: OT Wins All Tasks}{
+    \begin{center}
+    \includegraphics[width=0.95\linewidth]{../plots_multienv/final_performance_comparison.png}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \coloredbox[bgcolor=lightgreen,framecolor=neuripsgreen]{
+        \centering\large
+        \textbf{OT outperforms VP by +2\% to +183\%}
+    }
+
+    \vspace{0.5cm}
+
+    \begin{center}
+    \includegraphics[width=0.85\linewidth]{../plots_multienv/performance_heatmap.png}
+    \end{center}
+
+    \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Task} & \textbf{OT} & \textbf{VP} & \textbf{Cos} \\
+    \midrule
+    HumanoidGetup & \cellcolor{lightgreen}100\% & 98\% & 98\% \\
+    Go1 Getup & \cellcolor{lightgreen}100\% & \cellcolor{lightred}47\% & 55\% \\
+    Go1 Handstand & \cellcolor{lightgreen}100\% & \cellcolor{lightred}35\% & 41\% \\
+    \bottomrule
+    \end{tabular}
+}
+
+%-----------------------------------------------------------
+% VE Failure
+%-----------------------------------------------------------
+\block[titleoffsety=1cm,bodyoffsety=1cm]{5. Why VE Fails (100\% NaN!)}{
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{../plots_analysis/ve_failure_comprehensive.png}
+    \end{center}
+
+    \textbf{Gradient Explosion:}
+    \[
+    \frac{d\sigma}{dt}\bigg|_{t=1} = 80 \times \ln(8000) \approx \textcolor{neuripsred}{\mathbf{719}}
+    \]
+
+    \begin{itemize}[leftmargin=*]
+        \item RL actions bounded: $a \in [-1, 1]$
+        \item VE velocity: $\|v\| \approx 700$
+        \item $\Rightarrow$ \textbf{Incompatible with RL!}
+    \end{itemize}
+}
+
+%=========================================================
+% RIGHT COLUMN
+%=========================================================
+\column{0.33}
+
+%-----------------------------------------------------------
+% FPO vs PPO
+%-----------------------------------------------------------
+\block{6. FPO vs PPO: Task Dependency}{
+    \begin{center}
+    \includegraphics[width=0.95\linewidth]{../plots_multienv/fpo_vs_ppo_summary.png}
+    \end{center}
+
+    \begin{tabular}{@{}lrr@{}}
+    \toprule
+    \textbf{Task} & \textbf{FPO-OT} & \textbf{vs PPO} \\
+    \midrule
+    HumanoidGetup & 4201.9 & \cellcolor{lightgreen}\textbf{+44\%} \\
+    Go1 Getup & 18.29 & \cellcolor{lightgreen}\textbf{+46\%} \\
+    Go1 Handstand & 3.34 & \cellcolor{lightgreen}\textbf{+87\%} \\
+    Go1 Joystick & 4.39 & \cellcolor{lightred}\textbf{-74\%} \\
+    \bottomrule
+    \end{tabular}
+
+    \vspace{0.5cm}
+
+    \coloredbox[bgcolor=lightyellow,framecolor=neuripsblue]{
+        \textbf{Multimodal} $\rightarrow$ FPO wins (+87\%)\\
+        \textbf{Unimodal} $\rightarrow$ PPO wins (+285\%)
+    }
+}
+
+%-----------------------------------------------------------
+% Multimodality
+%-----------------------------------------------------------
+\block{7. FPO Excels at Multimodal Tasks}{
+    \textbf{Go1 Handstand:} Flip LEFT or RIGHT
+
+    \begin{center}
+    \includegraphics[width=0.95\linewidth]{../plots_analysis/go1_handstand_multimodal_explanation.png}
+    \end{center}
+
+    \textbf{Mode-Averaging Problem:}
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{PPO}: Averages modes $\rightarrow$ zero $\rightarrow$ \textcolor{neuripsred}{FAILS}
+        \item \textbf{FPO}: Both peaks $\rightarrow$ valid action $\rightarrow$ \textcolor{neuripsgreen}{WINS}
+    \end{itemize}
+}
+
+%-----------------------------------------------------------
+% Conclusions
+%-----------------------------------------------------------
+\block{8. Conclusions}{
+    \begin{enumerate}[leftmargin=*,label=\textbf{\arabic*.}]
+        \item \textcolor{neuripsgreen}{\textbf{Use OT}} for flow-based RL
+        \begin{itemize}
+            \item Constant velocity, shortest path
+            \item Best on ALL tasks
+        \end{itemize}
+
+        \item \textcolor{neuripsred}{\textbf{Avoid VE}} -- gradient explosion
+
+        \item \textbf{Match algorithm to task}
+        \begin{itemize}
+            \item Multimodal $\rightarrow$ FPO
+            \item Unimodal $\rightarrow$ PPO
+        \end{itemize}
+    \end{enumerate}
+
+    \vspace{0.5cm}
+
+    \coloredbox[bgcolor=lightblue,framecolor=neuripsblue]{
+        \centering\Large\textbf{Take-Home Message}\\[0.2cm]
+        \large Image generation schedules\\
+        \textbf{do not transfer} to robot learning.\\
+        OT is the gold standard.
+    }
+}
+
+\end{columns}
+
+\end{document}

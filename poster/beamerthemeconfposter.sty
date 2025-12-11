@@ -1,0 +1,89 @@
+%==============================================================================
+% Beamer Poster Theme for Conference Posters (NeurIPS Style)
+%==============================================================================
+
+\ProvidesPackage{beamerthemeconfposter}
+
+\mode<presentation>
+
+%-----------------------------------------------------------
+% Packages
+%-----------------------------------------------------------
+\RequirePackage{tikz}
+\RequirePackage{tcolorbox}
+
+%-----------------------------------------------------------
+% Colors
+%-----------------------------------------------------------
+\definecolor{neuripsblue}{RGB}{0, 51, 102}
+\definecolor{neuripsred}{RGB}{180, 50, 50}
+\definecolor{neuripsgray}{RGB}{100, 100, 100}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+
+%-----------------------------------------------------------
+% Fonts
+%-----------------------------------------------------------
+\usefonttheme{professionalfonts}
+\setbeamerfont{title}{size=\Huge,series=\bfseries}
+\setbeamerfont{author}{size=\Large}
+\setbeamerfont{institute}{size=\large}
+\setbeamerfont{block title}{size=\Large,series=\bfseries}
+\setbeamerfont{block body}{size=\normalsize}
+
+%-----------------------------------------------------------
+% Colors for blocks
+%-----------------------------------------------------------
+\setbeamercolor{title}{fg=neuripsblue}
+\setbeamercolor{author}{fg=black}
+\setbeamercolor{institute}{fg=neuripsgray}
+
+\setbeamercolor{block title}{fg=white,bg=neuripsblue}
+\setbeamercolor{block body}{fg=black,bg=white}
+\setbeamercolor{block alerted title}{fg=white,bg=neuripsred}
+\setbeamercolor{block alerted body}{fg=black,bg=white}
+
+%-----------------------------------------------------------
+% Block templates
+%-----------------------------------------------------------
+\setbeamertemplate{block begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[ht=3.5ex,dp=0.5ex,center,leftskip=-1em,colsep*=.75ex]{block title}%
+    \usebeamerfont*{block title}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=.75ex,sep=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\setbeamertemplate{block end}{
+  \end{beamercolorbox}
+}
+
+\setbeamertemplate{block alerted begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[ht=3.5ex,dp=0.5ex,center,leftskip=-1em,colsep*=.75ex]{block alerted title}%
+    \usebeamerfont*{block title}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block alerted body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=.75ex,sep=.75ex,vmode]{block alerted body}%
+    \ifbeamercolorempty[bg]{block alerted body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\setbeamertemplate{block alerted end}{
+  \end{beamercolorbox}
+}
+
+%-----------------------------------------------------------
+% Remove navigation
+%-----------------------------------------------------------
+\setbeamertemplate{navigation symbols}{}
+
+%-----------------------------------------------------------
+% Itemize/enumerate
+%-----------------------------------------------------------
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{enumerate items}[default]
+\setbeamercolor{itemize item}{fg=neuripsblue}
+\setbeamercolor{enumerate item}{fg=neuripsblue}
+
+\mode<all>

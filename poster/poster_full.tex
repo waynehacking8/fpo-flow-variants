@@ -55,24 +55,23 @@
 \usecolorstyle{NeurIPS}
 
 %-----------------------------------------------------------
-% Title - make title area taller
+% Title - with blue background and white text
 %-----------------------------------------------------------
-\settitle{
-    \centering
-    \vbox{
-        \centering
-        \vspace{0.8cm}
-        {\LARGE \color{white} \textbf{Comparative Analysis of Flow Schedules in Flow Policy Optimization for Robot Learning} \par}
-        \vspace{0.8cm}
-        {\large \color{white} Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao \par}
-        \vspace{0.3cm}
-        {\normalsize \color{white} National Taiwan University, Department of CSIE \par}
-        \vspace{0.8cm}
-    }
+\definetitlestyle{NeurIPSTitle}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=2cm,
+    titletotopverticalspace=15mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt
+}{
+    \begin{scope}[line width=\titlelinewidth, rounded corners=\titleroundedcorners]
+        \draw[fill=neuripsblue, draw=none]
+        (\titleposleft,\titleposbottom) rectangle (\titleposright,\titlepostop);
+    \end{scope}
 }
-\title{Comparative Analysis of Flow Schedules in Flow Policy Optimization for Robot Learning}
-\author{Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao}
-\institute{National Taiwan University, Department of CSIE}
+\usetitlestyle{NeurIPSTitle}
+
+\title{\color{white}\textbf{Comparative Analysis of Flow Schedules in Flow Policy Optimization for Robot Learning}}
+\author{\color{white}Wei-Cheng Chiu, Shang-Yen Lee, Yu-Tang Chang, Li-Chen Kao}
+\institute{\color{white}National Taiwan University, Department of CSIE}
 
 %-----------------------------------------------------------
 % Document
@@ -99,13 +98,16 @@
     \begin{itemize}[leftmargin=*]
         \item Can represent \textbf{multimodal} action distributions
         \item More expressive than unimodal Gaussian (PPO)
+        \item Leverages advances in generative modeling
     \end{itemize}
 
     \vspace{0.3cm}
 
     \textbf{The Problem:} Original FPO uses OT schedule, but \textcolor{neuripsred}{\textbf{never compared}} with other schedules:
     \begin{itemize}[leftmargin=*]
-        \item Variance Preserving (VP), Variance Exploding (VE), Cosine
+        \item Variance Preserving (VP) -- from DDPM
+        \item Variance Exploding (VE) -- from Score SDE
+        \item Cosine -- from Improved DDPM
     \end{itemize}
 
     \vspace{0.3cm}
@@ -169,20 +171,31 @@
 
     \vspace{0.2cm}
 
-    \textbf{Training:} 10M steps, 2048 parallel envs
+    \textbf{Training Configuration:}
+    \begin{itemize}[leftmargin=*]
+        \item 10M environment steps
+        \item 2048 parallel environments
+    \end{itemize}
 }
 
 %-----------------------------------------------------------
 % SNR Analysis
 %-----------------------------------------------------------
 \block{\large 4. Theoretical Analysis: SNR}{
-    \textbf{Signal-to-Noise Ratio:} $\text{SNR}(t) = \alpha_t / \sigma_t$
+    \textbf{Signal-to-Noise Ratio} determines learning difficulty:
+    \begin{equation*}
+    \text{SNR}(t) = \frac{\alpha_t}{\sigma_t}
+    \end{equation*}
 
     \begin{center}
     \includegraphics[width=0.95\linewidth]{figures/flow_snr_comparison.png}
     \end{center}
 
-    \textbf{Key:} VE's SNR drops to \textbf{1/80} at $t=1$ -- signal overwhelmed!
+    \textbf{Key Observations:}
+    \begin{itemize}[leftmargin=*]
+        \item OT/VP/Cosine: SNR decreases smoothly
+        \item VE: SNR drops to \textbf{1/80} at $t=1$
+    \end{itemize}
 }
 
 %=========================================================
